@@ -1,32 +1,33 @@
 pipeline {
-  agent {
-    dockerfile { additionalBuildArgs "--pull" }
-  }
-
-  environment {
-    ARTIUSER = "${env.ARTIFACTORYUSER}"
-    ARTIPASSWORD = "${env.ARTIFACTORYPASSWORD}"
-  }
+  agent none
 
   stages {
     stage('Build') {
-      steps {
-        sh './gradlew build'
+      agent {
+        dockerfile { additionalBuildArgs "--pull" }
       }
+      steps { sh './gradlew build' }
     }
     stage('Publish') {
-      when {
-        branch 'master'
+      agent {
+        dockerfile { additionalBuildArgs "--pull" }
       }
-      steps {
-        sh './gradlew publish'
+      environment {
+        ARTIUSER = "${env.ARTIFACTORYUSER}"
+        ARTIPASSWORD = "${env.ARTIFACTORYPASSWORD}"
       }
+      when { branch 'master' }
+      steps { sh './gradlew publish' }
     }
     stage('Tag') {
+      environment {
+        ACCESS_TOKEN=credentials('verify-ci-build-scan-2017-12-20')
+      }
       when { branch 'master' }
       agent any
       steps {
-        sh 'git tag -a build_${BUILD_NUMBER} -m "jenkins2 tag build_${BUILD_NUMBER}" && git push origin build_${BUILD_NUMBER}'
+        sh 'git config credential.username ${ACCESS_TOKEN_USR} && git config credential.helper "!echo password=\${ACCESS_TOKEN_PSW}; echo"'
+        sh 'git tag -a build_${BUILD_NUMBER} -m "jenkins2 tag build_${BUILD_NUMBER}" && GIT_ASKPASS=true git push origin build_${BUILD_NUMBER}'
       }
     }
   }
