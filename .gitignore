@@ -1,0 +1,16 @@
+*.class
+build
+.DS_Store
+.gradle
+.idea
+*.iml
+*.ipr
+*.iws
+out/**
+out/
+# Package Files #
+*.log
+*.swp
+*~
+*#
+target
