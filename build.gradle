@@ -13,3 +13,26 @@ dependencies {
     testCompile 'junit:junit:4.12',
                 'org.assertj:assertj-core:3.9.0'
 }
+
+publishing {
+    repositories {
+        maven {
+            credentials {
+                username "${System.env.ARTIUSER}"
+                password "${System.env.ARTIPASSWORD}"
+            }
+            url "https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/libs-release-local"
+        }
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = "uk.gov.ida"
+            artifactId = "verify-event-emitter"
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}
