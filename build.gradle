@@ -1,9 +1,8 @@
-group 'uk.gov.ida'
-version '1.0-SNAPSHOT'
-
 apply plugin: 'java'
+apply plugin: 'maven'
 
-sourceCompatibility = 1.8
+group = "uk.gov.ida"
+version = "${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 
 repositories {
     maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
@@ -12,6 +11,12 @@ repositories {
 dependencies {
     testCompile 'junit:junit:4.12',
                 'org.assertj:assertj-core:3.9.0'
+}
+
+apply plugin: 'maven-publish'
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
 }
 
 publishing {
