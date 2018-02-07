@@ -10,7 +10,8 @@ repositories {
 }
 
 dependencies {
-    compile     'joda-time:joda-time:2.9.9'
+    compile     'joda-time:joda-time:2.9.9',
+                'com.google.inject:guice:4.0'
     testCompile 'junit:junit:4.12',
                 'org.assertj:assertj-core:3.9.0'
 }
