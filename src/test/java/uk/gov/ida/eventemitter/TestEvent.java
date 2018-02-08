@@ -8,10 +8,12 @@ public class TestEvent implements Event {
 
     private final UUID eventId;
     private final DateTime timestamp;
+    private final String eventType;
 
-    public TestEvent(UUID eventId, DateTime timestamp) {
+    public TestEvent(final UUID eventId, final DateTime timestamp, final String eventType) {
         this.eventId = eventId;
         this.timestamp = timestamp;
+        this.eventType = eventType;
     }
 
     @Override
@@ -22,5 +24,10 @@ public class TestEvent implements Event {
     @Override
     public DateTime getTimestamp() {
         return timestamp;
+    }
+
+    @Override
+    public String getEventType() {
+        return eventType;
     }
 }

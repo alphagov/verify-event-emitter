@@ -9,4 +9,6 @@ public interface Event {
     UUID getEventId();
 
     DateTime getTimestamp();
+
+    String getEventType();
 }

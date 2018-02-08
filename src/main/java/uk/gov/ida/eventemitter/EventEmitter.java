@@ -8,6 +8,8 @@ public class EventEmitter {
     public EventEmitter() {}
 
     public void record(Event event) {
-        System.out.println(String.format("Event ID: %s, Timestamp: %s", event.getEventId(), event.getTimestamp()));
+        System.out.println(
+            String.format("Event ID: %s, Timestamp: %s, Event Type: %s",
+                event.getEventId(), event.getTimestamp(), event.getEventType()));
     }
 }

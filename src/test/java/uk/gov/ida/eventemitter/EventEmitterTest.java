@@ -33,21 +33,22 @@ public class EventEmitterTest {
     public void recordMethodShouldWriteEventDetailsToSystemOut() {
         final UUID id = UUID.randomUUID();
         final String timestamp = "2018-02-06T14:37:55.467Z";
-        final TestEvent event = new TestEvent(id, DateTime.parse(timestamp));
+        final String eventType = "Error Event";
+        final TestEvent event = new TestEvent(id, DateTime.parse(timestamp), eventType);
 
         eventEmitter.record(event);
 
         assertThat(outContent.toString())
-            .isEqualTo(String.format("Event ID: %s, Timestamp: %s\n", event.getEventId(), timestamp));
+            .isEqualTo(String.format("Event ID: %s, Timestamp: %s, Event Type: %s\n", id, timestamp, eventType));
     }
 
     @Test
     public void shouldNotThrowErrorsIfInputsAreNull() {
-        final TestEvent event = new TestEvent(null, null);
+        final TestEvent event = new TestEvent(null, null, null);
 
         eventEmitter.record(event);
 
         assertThat(outContent.toString())
-            .isEqualTo("Event ID: null, Timestamp: null\n");
+            .isEqualTo("Event ID: null, Timestamp: null, Event Type: null\n");
     }
 }
