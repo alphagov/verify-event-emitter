@@ -16,12 +16,14 @@ public class EventEmitterTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
     private EventEmitter eventEmitter;
+    private EventEmitter eventEmitterWithoutRecordingSystem;
 
     @Before
     public void setUp() {
         System.setOut(new PrintStream(outContent));
 
-        eventEmitter = new EventEmitter();
+        eventEmitter = new EventEmitter(true);
+        eventEmitterWithoutRecordingSystem = new EventEmitter(false);
     }
 
     @After
@@ -40,6 +42,18 @@ public class EventEmitterTest {
 
         assertThat(outContent.toString())
             .isEqualTo(String.format("Event ID: %s, Timestamp: %s, Event Type: %s\n", id, timestamp, eventType));
+    }
+
+    @Test
+    public void recordMethodShouldNotWriteEventDetailsToSystemOut() {
+        final UUID id = UUID.randomUUID();
+        final String timestamp = "2018-02-06T14:37:55.467Z";
+        final String eventType = "Error Event";
+        final TestEvent event = new TestEvent(id, DateTime.parse(timestamp), eventType);
+
+        eventEmitterWithoutRecordingSystem.record(event);
+
+        assertThat(outContent.toString()).isEmpty();
     }
 
     @Test
