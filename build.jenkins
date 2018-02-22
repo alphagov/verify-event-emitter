@@ -4,13 +4,9 @@ pipeline {
   stages {
     stage('Build') {
       agent {
-        dockerfile {
-          additionalBuildArgs '--tag event-emitter-image'
-        }
+        dockerfile { additionalBuildArgs "--pull" }
       }
-      steps {
-        sh 'ls -al / && cd /event-emitter && ls -al &&  ./pre-commit.sh'
-      }
+      steps { sh './gradlew build' }
     }
     stage('Publish') {
       agent {

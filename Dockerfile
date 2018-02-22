@@ -6,5 +6,9 @@ RUN apt-get update \
     && apt-get install -y nodejs
 
 RUN pip install virtualenv
-ADD . /event-emitter
-RUN chown -R 109:116 /event-emitter
+
+RUN useradd -r -u 109 -g 116 user
+WORKDIR /home/user
+RUN chown -R user:116 /home/user
+RUN chmod 755 /home/user
+USER user
