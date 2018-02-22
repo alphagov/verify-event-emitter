@@ -7,4 +7,4 @@ RUN apt-get update \
 
 RUN pip install virtualenv
 ADD . /event-emitter
-RUN chown 109:116 /event-emitter
+RUN chown -R 109:116 /event-emitter
