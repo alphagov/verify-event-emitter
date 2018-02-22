@@ -7,4 +7,5 @@ RUN apt-get update \
 
 RUN pip install virtualenv
 RUN ls -al
+RUN find . -name "gradlew" -type f
 RUN ./gradlew build
