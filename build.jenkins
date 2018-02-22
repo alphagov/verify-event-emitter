@@ -2,7 +2,7 @@ pipeline {
   agent none
 
   stages {
-    stage('Create Docker Image') {
+    stage('Build') {
       agent {
         dockerfile {
           additionalBuildArgs '--tag event-emitter-image'
@@ -10,19 +10,7 @@ pipeline {
         }
       }
       steps {
-        sh 'echo "Built Docker Container"'
-      }
-    }
-    stage('Run Tests') {
-      agent {
-        docker {
-          image 'event-emitter-image'
-          args '-u 109:sudo'
-          reuseNode true
-        }
-      }
-      steps {
-        sh './gradlew build'
+        sh './event-emitter/pre-commit.sh'
       }
     }
     stage('Publish') {

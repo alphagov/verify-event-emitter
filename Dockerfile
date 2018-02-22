@@ -6,5 +6,4 @@ RUN apt-get update \
     && apt-get install -y nodejs
 
 RUN pip install virtualenv
-
-CMD ./gradlew build
+ADD . /event-emitter
