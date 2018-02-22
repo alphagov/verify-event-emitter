@@ -6,4 +6,4 @@ RUN apt-get update \
     && apt-get install -y nodejs
 
 RUN pip install virtualenv
-ADD --chown 109:116 . /event-emitter
+ADD --chown=109:116 . /event-emitter
