@@ -6,6 +6,5 @@ RUN apt-get update \
     && apt-get install -y nodejs
 
 RUN pip install virtualenv
-RUN ls -al
-RUN find . -name "gradlew" -type f
-RUN ./gradlew build
+
+CMD ./gradlew build
