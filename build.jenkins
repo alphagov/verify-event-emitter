@@ -10,7 +10,7 @@ pipeline {
         }
       }
       steps {
-        sh 'ls -al /event-emitter && cd /event-emitter && ls -al &&  ./pre-commit.sh'
+        sh 'ls -al / && cd /event-emitter && ls -al &&  ./pre-commit.sh'
       }
     }
     stage('Publish') {
