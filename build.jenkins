@@ -2,17 +2,30 @@ pipeline {
   agent none
 
   stages {
-    stage('Build') {
+    stage('Create Docker Image') {
       agent {
-        dockerfile { additionalBuildArgs "--pull" }
+        dockerfile {
+          additionalBuildArgs '--tag event-emitter-image'
+          reuseNode true
+        }
       }
       steps {
-        sh 'ls -l'
-        sh 'if [ ! -d tmp ] ; then mkdir tmp; fi'
-        sh 'export TEMP=`pwd` && export HOME=$TEMP/tmp && npm config set cache $TEMP/tmp'
+        sh 'echo "Built Docker Container"'
+      }
+    }
+    stage('Run Tests') {
+      agent {
+        docker {
+          image 'event-emitter-image'
+          args '-u root:sudo'
+          reuseNode true
+        }
+      }
+      steps {
         sh './gradlew build'
       }
     }
+
     stage('Publish') {
       agent {
         dockerfile { additionalBuildArgs "--pull" }
