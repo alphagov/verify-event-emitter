@@ -8,7 +8,7 @@ pipeline {
       }
       steps {
         sh 'ls -l'
-        sh 'mkdir tmp'
+        sh 'if [ ! -d tmp ] ; then mkdir tmp; fi'
         sh 'export TEMP=`pwd` && npm config set cache $TEMP/tmp'
         sh './gradlew build'
       }
