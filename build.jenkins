@@ -6,7 +6,6 @@ pipeline {
       agent {
         dockerfile {
           additionalBuildArgs '--tag event-emitter-image'
-          reuseNode true
         }
       }
       steps {
