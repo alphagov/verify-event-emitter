@@ -7,6 +7,7 @@ RUN apt-get update \
 
 RUN pip install virtualenv
 
+RUN groupadd -g 116 team
 RUN useradd -r -u 109 -g 116 user
 WORKDIR /home/user
 RUN chown -R user:116 /home/user
