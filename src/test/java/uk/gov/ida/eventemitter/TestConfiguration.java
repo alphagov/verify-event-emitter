@@ -2,14 +2,14 @@ package uk.gov.ida.eventemitter;
 
 public class TestConfiguration implements Configuration {
 
-    private final String queueName;
+    private final String sourceQueueName;
 
-    public TestConfiguration(final String queueName) {
-        this.queueName = queueName;
+    public TestConfiguration(final String sourceQueueName) {
+        this.sourceQueueName = sourceQueueName;
     }
 
     @Override
-    public String getQueueName() {
-        return queueName;
+    public String getSourceQueueName() {
+        return sourceQueueName;
     }
 }

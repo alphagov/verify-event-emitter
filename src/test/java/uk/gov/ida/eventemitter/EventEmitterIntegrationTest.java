@@ -2,7 +2,7 @@ package uk.gov.ida.eventemitter;
 
 import cloud.localstack.LocalstackTestRunner;
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,10 +35,10 @@ import static uk.gov.ida.eventemitter.TestEventEmitterModule.KEY;
 @RunWith(LocalstackTestRunner.class)
 public class EventEmitterIntegrationTest {
 
-    private static final String QUEUE_NAME = "queueName";
+    private static final String SOURCE_QUEUE_NAME = "sourceQueueName";
     private static Injector injector;
     private static Optional<String> queueUrl;
-    private static Optional<AmazonSQS> clientSqs;
+    private static Optional<AmazonSQS> sqs;
 
     @BeforeClass
     public static void setUp() {
@@ -48,20 +48,18 @@ public class EventEmitterIntegrationTest {
 
             @Provides
             private Optional<Configuration> getConfiguration() {
-                return Optional.ofNullable(new TestConfiguration(QUEUE_NAME));
+                return Optional.ofNullable(new TestConfiguration(SOURCE_QUEUE_NAME));
             }
-        }, Modules.override(new EventEmitterModule())
-            .with(new TestEventEmitterModule()));
-        clientSqs = (Optional<AmazonSQS>) injector.getInstance(
-            Key.get(TypeLiteral.get(Types.newParameterizedType(Optional.class, AmazonSQS.class))));
-        clientSqs.get().createQueue(new CreateQueueRequest(QUEUE_NAME));
-        queueUrl = (Optional<String>) injector.getInstance(
-            Key.get(TypeLiteral.get(Types.newParameterizedType(Optional.class, String.class)), Names.named("QueueUrl")));
+        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
+
+        sqs = getInstanceOfAmazonSqs();
+        createSourceQueue();
+        queueUrl = getQueueUrl();
     }
 
     @AfterClass
     public static void tearDown() {
-        clientSqs.get().deleteQueue(queueUrl.get());
+        sqs.get().deleteQueue(queueUrl.get());
     }
 
     @Test
@@ -74,7 +72,7 @@ public class EventEmitterIntegrationTest {
         eventEmitter.record(event);
 
         final Message message = getAnEncryptedMessageFromSqs();
-        clientSqs.get().deleteMessage(queueUrl.get(), message.getReceiptHandle());
+        sqs.get().deleteMessage(queueUrl.get(), message.getReceiptHandle());
         final TestDecrypter<TestEvent> decrypter = new TestDecrypter(KEY, INIT_VECTOR, injector.getInstance(ObjectMapper.class));
         final Event actualEvent = decrypter.decrypt(message.getBody(), TestEvent.class);
 
@@ -83,9 +81,29 @@ public class EventEmitterIntegrationTest {
 
     private Message getAnEncryptedMessageFromSqs() {
         final ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl.get());
-        final List<Message> messages = clientSqs.get().receiveMessage(receiveMessageRequest).getMessages();
+        final List<Message> messages = sqs.get().receiveMessage(receiveMessageRequest).getMessages();
 
         assertThat(messages.size()).isEqualTo(1);
         return messages.get(0);
+    }
+
+    private static void createSourceQueue() {
+        try {
+            sqs.get().createQueue(SOURCE_QUEUE_NAME);
+        } catch (AmazonSQSException e) {
+            if (!e.getErrorCode().equals("QueueAlreadyExists")) {
+                throw e;
+            }
+        }
+    }
+
+    private static Optional<String> getQueueUrl() {
+        return (Optional<String>) injector.getInstance(
+            Key.get(TypeLiteral.get(Types.newParameterizedType(Optional.class, String.class)), Names.named("SourceQueueUrl")));
+    }
+
+    private static Optional<AmazonSQS> getInstanceOfAmazonSqs() {
+        return (Optional<AmazonSQS>) injector.getInstance(
+            Key.get(TypeLiteral.get(Types.newParameterizedType(Optional.class, AmazonSQS.class))));
     }
 }

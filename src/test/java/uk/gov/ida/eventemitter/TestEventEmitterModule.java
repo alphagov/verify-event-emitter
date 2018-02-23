@@ -19,7 +19,7 @@ public class TestEventEmitterModule extends AbstractModule {
 
     @Provides
     private Optional<AmazonSQS> getAmazonSqs(final Optional<Configuration> configuration) {
-        if (configuration.isPresent() && configuration.get().getQueueName() != null) {
+        if (configuration.isPresent() && configuration.get().getSourceQueueName() != null) {
             return Optional.ofNullable(TestUtils.getClientSQS());
         }
         return Optional.empty();

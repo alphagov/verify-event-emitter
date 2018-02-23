@@ -15,24 +15,24 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     private Optional<AmazonSQS> getAmazonSqs(final Optional<Configuration> configuration) {
-        if (configuration.isPresent() && configuration.get().getQueueName() != null) {
+        if (configuration.isPresent() && configuration.get().getSourceQueueName() != null) {
             return Optional.ofNullable(AmazonSQSClientBuilder.defaultClient());
         }
         return Optional.empty();
     }
 
     @Provides
-    @Named("QueueUrl")
+    @Named("SourceQueueUrl")
     private Optional<String> getQueueUrl(final Optional<AmazonSQS> amazonSqs,
                                          final Optional<Configuration> configuration) {
-        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.get().getQueueName()).getQueueUrl());
+        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.get().getSourceQueueName()).getQueueUrl());
     }
 
     @Provides
     private SqsClient getAmazonSqsClient(final Optional<AmazonSQS> amazonSqs,
-                                         final @Named("QueueUrl") Optional<String> queueUrl) {
-        if (amazonSqs.isPresent() && queueUrl.isPresent()){
-            return new AmazonSqsClient(amazonSqs.get(), queueUrl.get());
+                                         final @Named("SourceQueueUrl") Optional<String> sourceQueueUrl) {
+        if (amazonSqs.isPresent() && sourceQueueUrl.isPresent()){
+            return new AmazonSqsClient(amazonSqs.get(), sourceQueueUrl.get());
         }
         return new StubSqsClient();
     }
