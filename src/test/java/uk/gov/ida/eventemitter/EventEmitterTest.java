@@ -11,6 +11,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -36,7 +38,9 @@ public class EventEmitterTest {
 
     @Before
     public void setUp() throws Exception {
-        event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE);
+        final Map<String, String> details = new HashMap<>();
+        details.put("type", "network error");
+        event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
         when(encrypter.encrypt(event)).thenReturn(ENCRYPTED_EVENT);
 
         eventEmitter = new EventEmitter(encrypter, sqsClient);

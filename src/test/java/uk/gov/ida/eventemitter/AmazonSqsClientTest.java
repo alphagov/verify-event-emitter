@@ -12,6 +12,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
@@ -43,7 +45,9 @@ public class AmazonSqsClientTest {
 
     @Test
     public void shouldSendEventToSqs() {
-        event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE);
+        final Map<String, String> details = new HashMap<>();
+        details.put("type", "network error");
+        event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
         final SendMessageResult result = new SendMessageResult();
         when(sqs.sendMessage(SEND_MESSAGE_REQUEST)).thenReturn(result);
 

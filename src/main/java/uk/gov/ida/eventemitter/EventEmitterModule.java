@@ -10,18 +10,12 @@ import java.util.Optional;
 
 public class EventEmitterModule extends AbstractModule {
 
-    private Configuration configuration;
-
-    public EventEmitterModule(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
     @Override
     protected void configure() {}
 
     @Provides
-    private Optional<AmazonSQS> getAmazonSqs() {
-        if (this.configuration.getQueueName() != null) {
+    private Optional<AmazonSQS> getAmazonSqs(final Optional<Configuration> configuration) {
+        if (configuration.isPresent() && configuration.get().getQueueName() != null) {
             return Optional.ofNullable(AmazonSQSClientBuilder.defaultClient());
         }
         return Optional.empty();
@@ -29,8 +23,9 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Named("QueueUrl")
-    private Optional<String> getQueueUrl(final Optional<AmazonSQS> amazonSqs) {
-        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.getQueueName()).getQueueUrl());
+    private Optional<String> getQueueUrl(final Optional<AmazonSQS> amazonSqs,
+                                         final Optional<Configuration> configuration) {
+        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.get().getQueueName()).getQueueUrl());
     }
 
     @Provides
