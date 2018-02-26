@@ -3,6 +3,7 @@ package uk.gov.ida.eventemitter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -17,12 +18,19 @@ public final class TestEvent implements Event {
     @JsonProperty
     private String eventType;
 
+    @JsonProperty
+    private Map<String, String> details;
+
     private TestEvent() {}
 
-    public TestEvent(final UUID eventId, final DateTime timestamp, final String eventType) {
+    public TestEvent(final UUID eventId,
+                     final DateTime timestamp,
+                     final String eventType,
+                     final Map<String, String> details) {
         this.eventId = eventId;
         this.timestamp = timestamp;
         this.eventType = eventType;
+        this.details = details;
     }
 
     @Override
@@ -40,12 +48,17 @@ public final class TestEvent implements Event {
         return eventType;
     }
 
+    public Map<String, String> getDetails() {
+        return details;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("TestEvent{");
         sb.append("eventId=").append(eventId);
         sb.append(", timestamp=").append(timestamp);
         sb.append(", eventType='").append(eventType).append('\'');
+        sb.append(", details=").append(details);
         sb.append('}');
         return sb.toString();
     }
@@ -64,11 +77,12 @@ public final class TestEvent implements Event {
 
         return Objects.equals(eventId, testEvent.eventId) &&
             Objects.equals(timestamp, testEvent.timestamp) &&
-            Objects.equals(eventType, testEvent.eventType);
+            Objects.equals(eventType, testEvent.eventType) &&
+            Objects.equals(details, testEvent.details);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(eventId, timestamp, eventType);
+        return Objects.hash(eventId, timestamp, eventType, details);
     }
 }

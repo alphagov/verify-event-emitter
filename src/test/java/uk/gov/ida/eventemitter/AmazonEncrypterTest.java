@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -40,10 +41,13 @@ public class AmazonEncrypterTest {
     @Mock
     private CryptoResult cryptoResult;
 
+
     @Test
     public void shouldEncryptEvent() throws JsonProcessingException {
+        final Map<String, String> details = new HashMap<>();
+        details.put("type", "network error");
+        final TestEvent event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
         final AmazonEncrypter encrypter = new AmazonEncrypter(awsCrypto, provider, mapper);
-        final TestEvent event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE);
         final Map<String, String> context = Collections.EMPTY_MAP;
 
         when(mapper.writeValueAsString(event)).thenReturn(JSON_STRING);

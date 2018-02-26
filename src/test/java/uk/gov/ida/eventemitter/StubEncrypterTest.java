@@ -4,6 +4,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -17,7 +19,9 @@ public class StubEncrypterTest {
     @Test
     public void shouldReturnEncryptedEvent() {
         final StubEncrypter encrypter = new StubEncrypter();
-        final TestEvent event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE);
+        final Map<String, String> details = new HashMap<>();
+        details.put("type", "network error");
+        final TestEvent event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
 
         final String actualValue = encrypter.encrypt(event);
 

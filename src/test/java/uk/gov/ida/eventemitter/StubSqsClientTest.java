@@ -8,6 +8,8 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -29,7 +31,9 @@ public class StubSqsClientTest {
 
     @Test
     public void shouldWriteEventDetailsToStandardOutput() throws IOException {
-        event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE);
+        final Map<String, String> details = new HashMap<>();
+        details.put("type", "network error");
+        event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
 
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {
@@ -50,7 +54,7 @@ public class StubSqsClientTest {
 
     @Test
     public void shouldNotThrowErrorsIfInputsAreNull() throws IOException {
-        event = new TestEvent(null, null, null);
+        event = new TestEvent(null, null, null, null);
 
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {

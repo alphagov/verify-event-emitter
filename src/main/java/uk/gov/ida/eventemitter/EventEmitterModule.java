@@ -10,34 +10,29 @@ import java.util.Optional;
 
 public class EventEmitterModule extends AbstractModule {
 
-    private Configuration configuration;
-
-    public EventEmitterModule(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
     @Override
     protected void configure() {}
 
     @Provides
-    private Optional<AmazonSQS> getAmazonSqs() {
-        if (this.configuration.getQueueName() != null) {
+    private Optional<AmazonSQS> getAmazonSqs(final Optional<Configuration> configuration) {
+        if (configuration.isPresent() && configuration.get().getSourceQueueName() != null) {
             return Optional.ofNullable(AmazonSQSClientBuilder.defaultClient());
         }
         return Optional.empty();
     }
 
     @Provides
-    @Named("QueueUrl")
-    private Optional<String> getQueueUrl(final Optional<AmazonSQS> amazonSqs) {
-        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.getQueueName()).getQueueUrl());
+    @Named("SourceQueueUrl")
+    private Optional<String> getQueueUrl(final Optional<AmazonSQS> amazonSqs,
+                                         final Optional<Configuration> configuration) {
+        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.get().getSourceQueueName()).getQueueUrl());
     }
 
     @Provides
     private SqsClient getAmazonSqsClient(final Optional<AmazonSQS> amazonSqs,
-                                         final @Named("QueueUrl") Optional<String> queueUrl) {
-        if (amazonSqs.isPresent() && queueUrl.isPresent()){
-            return new AmazonSqsClient(amazonSqs.get(), queueUrl.get());
+                                         final @Named("SourceQueueUrl") Optional<String> sourceQueueUrl) {
+        if (amazonSqs.isPresent() && sourceQueueUrl.isPresent()){
+            return new AmazonSqsClient(amazonSqs.get(), sourceQueueUrl.get());
         }
         return new StubSqsClient();
     }
