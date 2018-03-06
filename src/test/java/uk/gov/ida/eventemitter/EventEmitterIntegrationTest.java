@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static uk.gov.ida.eventemitter.TestEventEmitterModule.INIT_VECTOR;
 import static uk.gov.ida.eventemitter.TestEventEmitterModule.KEY;
 
 @RunWith(LocalstackTestRunner.class)
@@ -73,7 +72,7 @@ public class EventEmitterIntegrationTest {
 
         final Message message = getAnEncryptedMessageFromSqs();
         sqs.get().deleteMessage(queueUrl.get(), message.getReceiptHandle());
-        final TestDecrypter<TestEvent> decrypter = new TestDecrypter(KEY, INIT_VECTOR, injector.getInstance(ObjectMapper.class));
+        final TestDecrypter<TestEvent> decrypter = new TestDecrypter(KEY, injector.getInstance(ObjectMapper.class));
         final Event actualEvent = decrypter.decrypt(message.getBody(), TestEvent.class);
 
         assertThat(actualEvent).isEqualTo(event);

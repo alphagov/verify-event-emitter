@@ -10,9 +10,7 @@ import com.google.inject.Provides;
 import java.util.Optional;
 
 public class TestEventEmitterModule extends AbstractModule {
-
-    public static final String KEY = "aesEncryptionKey";
-    public static final String INIT_VECTOR = "encryptionIntVec";
+    public static final byte[] KEY = "aesEncryptionKey".getBytes();
 
     @Override
     protected void configure() {}
@@ -34,7 +32,6 @@ public class TestEventEmitterModule extends AbstractModule {
 
     @Provides
     private EventEmitter getEventEmitter(final SqsClient sqsClient, final ObjectMapper mapper) {
-
-        return new EventEmitter(new TestEncrypter(KEY, INIT_VECTOR, mapper), sqsClient);
+        return new EventEmitter(new EventEncrypter(KEY, mapper), sqsClient);
     }
 }
