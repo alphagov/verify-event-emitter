@@ -1,6 +1,7 @@
 package uk.gov.ida.eventemitter;
 
 import cloud.localstack.TestUtils;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -10,8 +11,6 @@ import com.google.inject.Provides;
 import java.util.Optional;
 
 public class TestEventEmitterModule extends AbstractModule {
-    public static final byte[] KEY = "aesEncryptionKey".getBytes();
-
     @Override
     protected void configure() {}
 
@@ -24,14 +23,19 @@ public class TestEventEmitterModule extends AbstractModule {
     }
 
     @Provides
+    private Optional<AmazonS3> getAmazonS3(final Optional<Configuration> configuration) {
+        if (configuration.isPresent() &&
+            configuration.get().getBucketName() != null &&
+            configuration.get().getKeyName() != null) {
+            return Optional.ofNullable(TestUtils.getClientS3());
+        }
+        return Optional.empty();
+    }
+
+    @Provides
     private ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
         return mapper;
-    }
-
-    @Provides
-    private EventEmitter getEventEmitter(final SqsClient sqsClient, final ObjectMapper mapper) {
-        return new EventEmitter(new EventEncrypter(KEY, mapper), sqsClient);
     }
 }
