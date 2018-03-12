@@ -4,9 +4,7 @@ import cloud.localstack.LocalstackTestRunner;
 import cloud.localstack.TestUtils;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.AmazonSQSException;
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
@@ -17,7 +15,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,7 +44,7 @@ public class AmazonSqsClientIntegrationTest {
         event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
 
         sqs = TestUtils.getClientSQS();
-        sqs.createQueue(new CreateQueueRequest(QUEUE_NAME));
+        AmazonHelper.createSourceQueue(sqs, QUEUE_NAME);
         queueUrl = sqs.getQueueUrl(QUEUE_NAME).getQueueUrl();
         sqsClient = new AmazonSqsClient(sqs, queueUrl);
     }
@@ -63,11 +60,7 @@ public class AmazonSqsClientIntegrationTest {
 
         sqsClient.send(event, ENCRYPTED_EVENT);
 
-        final ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl);
-        final List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
-
-        assertThat(messages.size()).isEqualTo(1);
-        final Message message = messages.get(0);
+        final Message message = AmazonHelper.getAMessageFromSqs(sqs, queueUrl);
         sqs.deleteMessage(queueUrl, message.getReceiptHandle());
 
         assertThat(message.getBody()).isEqualTo(ENCRYPTED_EVENT);

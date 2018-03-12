@@ -4,7 +4,6 @@ import cloud.localstack.LocalstackTestRunner;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.Message;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -17,6 +16,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +27,7 @@ import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(LocalstackTestRunner.class)
-public class EventEmitterIntegrationTest {
+public class EventEmitterWithAMissingS3BucketIntegrationTest {
 
     private static final String KEY = "aesEncryptionKey";
     private static final String SOURCE_QUEUE_NAME = "sourceQueueName";
@@ -35,9 +37,14 @@ public class EventEmitterIntegrationTest {
     private static Optional<String> queueUrl;
     private static Optional<AmazonSQS> sqs;
     private static Optional<AmazonS3> s3;
+    private static ByteArrayOutputStream errorContent;
+    private static PrintStream printStream;
 
     @BeforeClass
     public static void setUp() {
+        errorContent = new ByteArrayOutputStream();
+        printStream = new PrintStream(errorContent);
+        System.setErr(printStream);
         injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {}
@@ -51,18 +58,24 @@ public class EventEmitterIntegrationTest {
         sqs = AmazonHelper.getInstanceOfAmazonSqs(injector);
         s3 = AmazonHelper.getInstanceOfAmazonS3(injector);
         AmazonHelper.createSourceQueue(sqs.get(), SOURCE_QUEUE_NAME);
-        AmazonHelper.setUpS3Bucket(s3.get(), BUCKET_NAME, KEY_NAME, KEY);
         queueUrl = AmazonHelper.getQueueUrl(injector);
+        System.setErr(System.err);
     }
 
     @AfterClass
-    public static void tearDown() {
+    public static void tearDown() throws IOException {
         sqs.get().deleteQueue(queueUrl.get());
         AmazonHelper.deleteBucket(s3.get(), BUCKET_NAME);
+        try {
+            printStream.close();
+        }
+        finally {
+            errorContent.close();
+        }
     }
 
     @Test
-    public void shouldEncryptMessageUsingEventEncrypterAndSendToSQS() throws Exception {
+    public void shouldEncryptMessageUsingStubEncrypterAndSendToSQSWhenS3BucketIsMissing() throws Exception {
         final EventEmitter eventEmitter = injector.getInstance(EventEmitter.class);
         final Map<String, String> details = new HashMap<>();
         details.put("type", "network error");
@@ -72,9 +85,8 @@ public class EventEmitterIntegrationTest {
 
         final Message message = AmazonHelper.getAMessageFromSqs(sqs.get(), queueUrl.get());
         sqs.get().deleteMessage(queueUrl.get(), message.getReceiptHandle());
-        final TestDecrypter<TestEvent> decrypter = new TestDecrypter(KEY.getBytes(), injector.getInstance(ObjectMapper.class));
-        final Event actualEvent = decrypter.decrypt(message.getBody(), TestEvent.class);
 
-        assertThat(actualEvent).isEqualTo(event);
+        assertThat(errorContent.toString()).contains("Failed to load S3 bucket bucket.name.");
+        assertThat(message.getBody()).isEqualTo(String.format("Encrypted Event Id %s", event.getEventId().toString()));
     }
 }

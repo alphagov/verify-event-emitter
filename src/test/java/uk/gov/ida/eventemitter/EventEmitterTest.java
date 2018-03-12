@@ -31,7 +31,7 @@ public class EventEmitterTest {
     private TestEvent event;
 
     @Mock
-    private Encrypter encrypter;
+    private EventEncrypter eventEncrypter;
 
     @Mock
     private SqsClient sqsClient;
@@ -41,23 +41,23 @@ public class EventEmitterTest {
         final Map<String, String> details = new HashMap<>();
         details.put("type", "network error");
         event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
-        when(encrypter.encrypt(event)).thenReturn(ENCRYPTED_EVENT);
+        when(eventEncrypter.encrypt(event)).thenReturn(ENCRYPTED_EVENT);
 
-        eventEmitter = new EventEmitter(encrypter, sqsClient);
+        eventEmitter = new EventEmitter(eventEncrypter, sqsClient);
     }
 
     @Test
     public void shouldEncryptAndSendEncryptedEventToSqs() throws Exception {
         eventEmitter.record(event);
 
-         verify(encrypter).encrypt(event);
+         verify(eventEncrypter).encrypt(event);
          verify(sqsClient).send(event, ENCRYPTED_EVENT);
     }
 
     @Test
     public void shouldLogErrorAfterFailingToEncrypt() throws Exception {
         final String errorMessage = "Failed to encrypt.";
-        when(encrypter.encrypt(event)).thenThrow(new RuntimeException(errorMessage));
+        when(eventEncrypter.encrypt(event)).thenThrow(new RuntimeException(errorMessage));
 
         try (ByteArrayOutputStream errorContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(errorContent)) {
