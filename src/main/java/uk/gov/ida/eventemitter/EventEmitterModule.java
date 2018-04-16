@@ -62,9 +62,9 @@ public class EventEmitterModule extends AbstractModule {
                                    final ObjectMapper mapper) {
         if (amazonS3.isPresent()) {
             try {
-                S3Object o = amazonS3.get().getObject(configuration.get().getBucketName(), configuration.get().getKeyName());
-                S3ObjectInputStream s3is = o.getObjectContent();
-                byte[] key = IOUtils.toByteArray(s3is);
+                S3Object s3Object = amazonS3.get().getObject(configuration.get().getBucketName(), configuration.get().getKeyName());
+                S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
+                byte[] key = IOUtils.toByteArray(s3ObjectInputStream);
                 return new EventEncrypter(key, mapper);
 
             } catch (SdkClientException e) {
