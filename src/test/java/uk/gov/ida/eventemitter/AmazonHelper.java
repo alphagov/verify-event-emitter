@@ -62,17 +62,17 @@ public class AmazonHelper {
     public static void deleteBucket(final AmazonS3 s3,
                                     final String bucketName) {
         try {
-            ObjectListing object_listing = s3.listObjects(bucketName);
+            ObjectListing objectListing = s3.listObjects(bucketName);
             while (true) {
                 for (Iterator<?> iterator =
-                     object_listing.getObjectSummaries().iterator();
+                     objectListing.getObjectSummaries().iterator();
                      iterator.hasNext();) {
                     S3ObjectSummary summary = (S3ObjectSummary)iterator.next();
                     s3.deleteObject(bucketName, summary.getKey());
                 }
 
-                if (object_listing.isTruncated()) {
-                    object_listing = s3.listNextBatchOfObjects(object_listing);
+                if (objectListing.isTruncated()) {
+                    objectListing = s3.listNextBatchOfObjects(objectListing);
                 } else {
                     break;
                 }
