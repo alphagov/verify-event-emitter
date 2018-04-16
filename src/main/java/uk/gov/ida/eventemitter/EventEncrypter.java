@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 
 public class EventEncrypter implements Encrypter {
 
-    private static final int IV_SIZE = 16;
+    public static final int INITIALISATION_VECTOR_SIZE = 16;
     private final byte[] key;
     private final ObjectMapper mapper;
 
@@ -23,31 +23,31 @@ public class EventEncrypter implements Encrypter {
     }
 
     public String encrypt(final Event event) throws Exception {
-        final byte[] iv = generateIV();
-        final byte[] encryptedEvent = encryptEvent(event, iv);
-        final byte[] encryptedEventAndIv = combineEncryptedEventWithIV(encryptedEvent, iv);
+        final byte[] initialisationVector = generateInitialisationVector();
+        final byte[] encryptedEvent = encryptEvent(event, initialisationVector);
+        final byte[] encryptedEventAndIv = combineEncryptedEventWithIV(encryptedEvent, initialisationVector);
 
         return Base64.encodeBase64String(encryptedEventAndIv);
     }
 
-    private byte[] generateIV() {
-        byte[] iv = new byte[IV_SIZE];
+    private byte[] generateInitialisationVector() {
+        byte[] initialisationVector = new byte[INITIALISATION_VECTOR_SIZE];
         SecureRandom random = new SecureRandom();
-        random.nextBytes(iv);
-        return iv;
+        random.nextBytes(initialisationVector);
+        return initialisationVector;
     }
 
-    private byte[] encryptEvent(final Event event, final byte[] iv) throws Exception {
+    private byte[] encryptEvent(final Event event, final byte[] initialisationVector) throws Exception {
         final SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
         final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(initialisationVector));
         return cipher.doFinal(mapper.writeValueAsBytes(event));
     }
 
-    private byte[] combineEncryptedEventWithIV(final byte[] encryptedEvent, final byte[] iv) {
-        byte[] encryptedEventAndIv = new byte[IV_SIZE + encryptedEvent.length];
-        System.arraycopy(iv, 0, encryptedEventAndIv, 0, IV_SIZE);
-        System.arraycopy(encryptedEvent, 0, encryptedEventAndIv, IV_SIZE, encryptedEvent.length);
+    private byte[] combineEncryptedEventWithIV(final byte[] encryptedEvent, final byte[] initialisationVector) {
+        byte[] encryptedEventAndIv = new byte[INITIALISATION_VECTOR_SIZE + encryptedEvent.length];
+        System.arraycopy(initialisationVector, 0, encryptedEventAndIv, 0, INITIALISATION_VECTOR_SIZE);
+        System.arraycopy(encryptedEvent, 0, encryptedEventAndIv, INITIALISATION_VECTOR_SIZE, encryptedEvent.length);
         return encryptedEventAndIv;
     }
 }
