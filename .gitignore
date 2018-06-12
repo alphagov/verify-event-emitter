@@ -14,3 +14,6 @@ out/
 *~
 *#
 target
+/.cache/
+/.localstack
+/.npm/

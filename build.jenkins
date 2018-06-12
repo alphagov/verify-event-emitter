@@ -15,9 +15,11 @@ pipeline {
       environment {
         ARTIUSER = "${env.ARTIFACTORYUSER}"
         ARTIPASSWORD = "${env.ARTIFACTORYPASSWORD}"
+        BINTRAY_USER    = 'richardtowers'
+        BINTRAY_API_KEY = credentials('bintray-api-key')
       }
       when { branch 'master' }
-      steps { sh './gradlew publish' }
+      steps { sh './gradlew publish bintrayUpload' }
     }
     stage('Tag') {
       environment {
