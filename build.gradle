@@ -22,10 +22,11 @@ dependencies {
                 'cloud.localstack:localstack-utils:0.1.9'
 }
 
-task resolveDependencies {
-    doLast {
-        project.rootProject.configurations['compile'].resolve()
-        project.rootProject.configurations['testCompile'].resolve()
+allprojects {
+    task resolveDependencies {
+        doLast {
+            configurations.all { it.isCanBeResolved() && it.resolve() }
+        }
     }
 }
 
