@@ -22,6 +22,13 @@ dependencies {
                 'cloud.localstack:localstack-utils:0.1.9'
 }
 
+task resolveDependencies {
+    doLast {
+        project.rootProject.configurations['compile'].resolve()
+        project.rootProject.configurations['testCompile'].resolve()
+    }
+}
+
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }

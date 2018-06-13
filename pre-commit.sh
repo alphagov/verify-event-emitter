@@ -29,6 +29,6 @@ else
   docker build -t verify-event-emitter .
 
   echo "${blue}Running tests in docker.${reset}"
-  docker run --rm --entrypoint './gradlew' verify-event-emitter --no-daemon clean build
+  docker run --rm --entrypoint './gradlew' verify-event-emitter --no-daemon --offline clean build
 fi
 

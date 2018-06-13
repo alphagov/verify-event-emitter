@@ -19,6 +19,6 @@ COPY gradlew gradlew
 RUN ./gradlew --no-daemon
 
 COPY build.gradle build.gradle
-RUN ./gradlew --no-daemon dependencies
+RUN ./gradlew --no-daemon resolveDependencies
 
 COPY . ./
