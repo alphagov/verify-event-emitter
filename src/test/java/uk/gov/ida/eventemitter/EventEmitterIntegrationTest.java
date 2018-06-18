@@ -1,6 +1,9 @@
 package uk.gov.ida.eventemitter;
 
 import cloud.localstack.LocalstackTestRunner;
+import com.amazonaws.services.kms.AWSKMS;
+import com.amazonaws.services.kms.model.DecryptRequest;
+import com.amazonaws.services.kms.model.DecryptResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.Message;
@@ -9,6 +12,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.util.Modules;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -17,12 +21,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(LocalstackTestRunner.class)
 public class EventEmitterIntegrationTest {
@@ -38,15 +46,20 @@ public class EventEmitterIntegrationTest {
 
     @BeforeClass
     public static void setUp() {
+        AWSKMS awsKms = mock(AWSKMS.class);
+        DecryptResult decryptResult = mock(DecryptResult.class);
+        when(awsKms.decrypt(any(DecryptRequest.class))).thenReturn(decryptResult);
+        when(decryptResult.getPlaintext()).thenReturn(ByteBuffer.wrap(KEY.getBytes()));
         injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {}
 
             @Provides
+            @Singleton
             private Optional<Configuration> getConfiguration() {
                 return Optional.ofNullable(new TestConfiguration(SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME));
             }
-        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
+        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule(awsKms)));
 
         sqs = AmazonHelper.getInstanceOfAmazonSqs(injector);
         s3 = AmazonHelper.getInstanceOfAmazonS3(injector);
