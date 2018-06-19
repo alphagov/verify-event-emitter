@@ -1,6 +1,7 @@
 package uk.gov.ida.eventemitter;
 
 import cloud.localstack.LocalstackTestRunner;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.model.DecryptRequest;
 import com.amazonaws.services.kms.model.DecryptResult;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.when;
 @RunWith(LocalstackTestRunner.class)
 public class EventEmitterIntegrationTest {
 
+    private static final String ACCESS_KEY_ID = "accessKeyId";
+    private static final String ACCESS_SECRET_KEY = "accessSecretKey";
     private static final String KEY = "aesEncryptionKey";
     private static final String SOURCE_QUEUE_NAME = "sourceQueueName";
     private static final String BUCKET_NAME = "bucket.name";
@@ -57,7 +60,7 @@ public class EventEmitterIntegrationTest {
             @Provides
             @Singleton
             private Optional<Configuration> getConfiguration() {
-                return Optional.ofNullable(new TestConfiguration(SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME));
+                return Optional.ofNullable(new TestConfiguration(ACCESS_KEY_ID, ACCESS_SECRET_KEY, Regions.EU_WEST_2, SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME));
             }
         }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule(awsKms)));
 
