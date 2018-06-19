@@ -1,6 +1,10 @@
 package uk.gov.ida.eventemitter;
 
 import cloud.localstack.LocalstackTestRunner;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.kms.AWSKMS;
+import com.amazonaws.services.kms.model.DecryptRequest;
+import com.amazonaws.services.kms.model.DecryptResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.Message;
@@ -19,16 +23,22 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(LocalstackTestRunner.class)
 public class EventEmitterWithAMissingS3BucketIntegrationTest {
 
+    private static final String ACCESS_KEY_ID = "accessKeyId";
+    private static final String ACCESS_SECRET_KEY = "accessSecretKey";
     private static final String KEY = "aesEncryptionKey";
     private static final String SOURCE_QUEUE_NAME = "sourceQueueName";
     private static final String BUCKET_NAME = "bucket.name";
@@ -42,6 +52,10 @@ public class EventEmitterWithAMissingS3BucketIntegrationTest {
 
     @BeforeClass
     public static void setUp() {
+        AWSKMS awsKms = mock(AWSKMS.class);
+        DecryptResult decryptResult = mock(DecryptResult.class);
+        when(awsKms.decrypt(any(DecryptRequest.class))).thenReturn(decryptResult);
+        when(decryptResult.getPlaintext()).thenReturn(ByteBuffer.wrap(KEY.getBytes()));
         errorContent = new ByteArrayOutputStream();
         printStream = new PrintStream(errorContent);
         System.setErr(printStream);
@@ -51,9 +65,9 @@ public class EventEmitterWithAMissingS3BucketIntegrationTest {
 
             @Provides
             private Optional<Configuration> getConfiguration() {
-                return Optional.ofNullable(new TestConfiguration(SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME));
+                return Optional.ofNullable(new TestConfiguration(ACCESS_KEY_ID, ACCESS_SECRET_KEY, Regions.EU_WEST_2, SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME));
             }
-        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
+        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule(awsKms)));
 
         sqs = AmazonHelper.getInstanceOfAmazonSqs(injector);
         s3 = AmazonHelper.getInstanceOfAmazonS3(injector);
