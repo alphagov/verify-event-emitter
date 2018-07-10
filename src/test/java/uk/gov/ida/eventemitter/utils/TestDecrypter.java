@@ -1,4 +1,4 @@
-package uk.gov.ida.eventemitter;
+package uk.gov.ida.eventemitter.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;

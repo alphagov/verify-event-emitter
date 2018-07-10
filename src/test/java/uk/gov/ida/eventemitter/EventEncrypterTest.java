@@ -6,6 +6,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.ida.eventemitter.utils.TestDecrypter;
+import uk.gov.ida.eventemitter.utils.TestEvent;
 
 import java.util.HashMap;
 import java.util.Map;

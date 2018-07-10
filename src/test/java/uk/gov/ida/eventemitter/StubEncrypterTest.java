@@ -3,6 +3,7 @@ package uk.gov.ida.eventemitter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
+import uk.gov.ida.eventemitter.utils.TestEvent;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.ida.eventemitter.utils.TestEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

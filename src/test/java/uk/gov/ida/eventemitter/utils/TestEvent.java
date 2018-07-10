@@ -1,7 +1,8 @@
-package uk.gov.ida.eventemitter;
+package uk.gov.ida.eventemitter.utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
+import uk.gov.ida.eventemitter.Event;
 
 import java.util.Map;
 import java.util.Objects;

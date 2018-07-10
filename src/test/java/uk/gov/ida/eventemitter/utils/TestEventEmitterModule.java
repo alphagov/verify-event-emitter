@@ -1,4 +1,4 @@
-package uk.gov.ida.eventemitter;
+package uk.gov.ida.eventemitter.utils;
 
 import cloud.localstack.TestUtils;
 import com.amazonaws.services.kms.AWSKMS;
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import uk.gov.ida.eventemitter.Configuration;
 
 import java.util.Optional;
 

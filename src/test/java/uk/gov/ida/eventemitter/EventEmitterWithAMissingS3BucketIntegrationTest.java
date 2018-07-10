@@ -19,6 +19,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import uk.gov.ida.eventemitter.utils.AmazonHelper;
+import uk.gov.ida.eventemitter.utils.TestConfiguration;
+import uk.gov.ida.eventemitter.utils.TestEvent;
+import uk.gov.ida.eventemitter.utils.TestEventEmitterModule;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

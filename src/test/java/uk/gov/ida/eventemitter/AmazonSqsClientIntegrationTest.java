@@ -13,6 +13,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import uk.gov.ida.eventemitter.utils.AmazonHelper;
+import uk.gov.ida.eventemitter.utils.TestEvent;
 
 import java.util.HashMap;
 import java.util.Map;

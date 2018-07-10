@@ -1,4 +1,4 @@
-package uk.gov.ida.eventemitter;
+package uk.gov.ida.eventemitter.utils;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
