@@ -1,7 +1,6 @@
 package uk.gov.ida.eventemitter;
 
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import org.joda.time.DateTime;
@@ -31,9 +30,6 @@ public class AmazonSqsClientTest {
 
     @Mock
     private AmazonSQS sqs;
-
-    @Mock
-    private GetQueueUrlResult queueUrlResult;
 
     private AmazonSqsClient sqsClient;
     private Event event;

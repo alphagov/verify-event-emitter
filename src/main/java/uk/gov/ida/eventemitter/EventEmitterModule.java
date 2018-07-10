@@ -66,6 +66,28 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Named("SourceQueueUrl")
+    private Optional<String> getQueueUrl(
+    final Optional<AmazonSQS> amazonSqs,
+    final Optional<Configuration> configuration) {
+
+        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.get().getSourceQueueName()).getQueueUrl());
+    }
+
+    @Provides
+    @Singleton
+    private SqsClient getAmazonSqsClient(
+    final Optional<AmazonSQS> amazonSqs,
+    final @Named("SourceQueueUrl") Optional<String> sourceQueueUrl) {
+
+        if (amazonSqs.isPresent() && sourceQueueUrl.isPresent()){
+            return new AmazonSqsClient(amazonSqs.get(), sourceQueueUrl.get());
+        }
+        return new StubSqsClient();
+    }
+
+    @Provides
+    @Singleton
     private Optional<AmazonS3> getAmazonS3(
         final Optional<Configuration> configuration,
         final Optional<AWSCredentials> credentials) {
@@ -101,28 +123,6 @@ public class EventEmitterModule extends AbstractModule {
             }
             return AWSKMSClientBuilder.defaultClient();
         });
-    }
-
-    @Provides
-    @Singleton
-    @Named("SourceQueueUrl")
-    private Optional<String> getQueueUrl(
-        final Optional<AmazonSQS> amazonSqs,
-        final Optional<Configuration> configuration) {
-
-        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.get().getSourceQueueName()).getQueueUrl());
-    }
-
-    @Provides
-    @Singleton
-    private SqsClient getAmazonSqsClient(
-        final Optional<AmazonSQS> amazonSqs,
-        final @Named("SourceQueueUrl") Optional<String> sourceQueueUrl) {
-
-        if (amazonSqs.isPresent() && sourceQueueUrl.isPresent()){
-            return new AmazonSqsClient(amazonSqs.get(), sourceQueueUrl.get());
-        }
-        return new StubSqsClient();
     }
 
     @Provides
