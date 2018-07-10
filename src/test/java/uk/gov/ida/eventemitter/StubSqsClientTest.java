@@ -1,7 +1,5 @@
 package uk.gov.ida.eventemitter;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.ida.eventemitter.utils.TestEvent;
@@ -9,17 +7,12 @@ import uk.gov.ida.eventemitter.utils.TestEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
 
 public class StubSqsClientTest {
 
-    private static final UUID ID = UUID.randomUUID();
-    private static final DateTime TIMESTAMP = DateTime.now(DateTimeZone.UTC);
-    private static final String EVENT_TYPE = "Error Event";
     private static final String ENCRYPTED_EVENT = "encryptedEvent";
 
     private StubSqsClient sqsClient;
@@ -32,9 +25,7 @@ public class StubSqsClientTest {
 
     @Test
     public void shouldWriteEventDetailsToStandardOutput() throws IOException {
-        final Map<String, String> details = new HashMap<>();
-        details.put("type", "network error");
-        event = new TestEvent(ID, TIMESTAMP, EVENT_TYPE, details);
+        event = aTestEventMessage().build();
 
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {
@@ -45,9 +36,9 @@ public class StubSqsClientTest {
             assertThat(outContent.toString())
                 .containsOnlyOnce(String.format(
                 "Event ID: %s, Timestamp: %s, Event Type: %s, Event String: %s\n",
-                ID,
-                TIMESTAMP,
-                EVENT_TYPE,
+                event.getEventId().toString(),
+                event.getTimestamp(),
+                event.getEventType(),
                 ENCRYPTED_EVENT
             ));
         }
