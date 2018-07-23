@@ -44,9 +44,9 @@ public class EventEmitterIntegrationTest {
     private static final String BUCKET_NAME = "bucket.name";
     private static final String KEY_NAME = "keyName";
     private static Injector injector;
-    private static Optional<String> queueUrl;
-    private static Optional<AmazonSQS> sqs;
-    private static Optional<AmazonS3> s3;
+    private static String queueUrl;
+    private static AmazonSQS sqs;
+    private static AmazonS3 s3;
 
     @BeforeClass
     public static void setUp() {
@@ -60,22 +60,22 @@ public class EventEmitterIntegrationTest {
 
             @Provides
             @Singleton
-            private Optional<Configuration> getConfiguration() {
-                return Optional.ofNullable(new TestConfiguration(ACCESS_KEY_ID, ACCESS_SECRET_KEY, Regions.EU_WEST_2, SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME));
+            private Configuration getConfiguration() {
+                return new TestConfiguration(ACCESS_KEY_ID, ACCESS_SECRET_KEY, Regions.EU_WEST_2, SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME);
             }
         }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule(awsKms)));
 
         sqs = AmazonHelper.getInstanceOfAmazonSqs(injector);
         s3 = AmazonHelper.getInstanceOfAmazonS3(injector);
-        AmazonHelper.createSourceQueue(sqs.get(), SOURCE_QUEUE_NAME);
-        AmazonHelper.setUpS3Bucket(s3.get(), BUCKET_NAME, KEY_NAME, KEY);
+        AmazonHelper.createSourceQueue(sqs, SOURCE_QUEUE_NAME);
+        AmazonHelper.setUpS3Bucket(s3, BUCKET_NAME, KEY_NAME, KEY);
         queueUrl = AmazonHelper.getQueueUrl(injector);
     }
 
     @AfterClass
     public static void tearDown() {
-        sqs.get().deleteQueue(queueUrl.get());
-        AmazonHelper.deleteBucket(s3.get(), BUCKET_NAME);
+        sqs.deleteQueue(queueUrl);
+        AmazonHelper.deleteBucket(s3, BUCKET_NAME);
     }
 
     @Test
@@ -85,8 +85,8 @@ public class EventEmitterIntegrationTest {
 
         eventEmitter.record(event);
 
-        final Message message = AmazonHelper.getAMessageFromSqs(sqs.get(), queueUrl.get());
-        sqs.get().deleteMessage(queueUrl.get(), message.getReceiptHandle());
+        final Message message = AmazonHelper.getAMessageFromSqs(sqs, queueUrl);
+        sqs.deleteMessage(queueUrl, message.getReceiptHandle());
         final TestDecrypter<TestEvent> decrypter = new TestDecrypter(KEY.getBytes(), injector.getInstance(ObjectMapper.class));
         final Event actualEvent = decrypter.decrypt(message.getBody(), TestEvent.class);
 

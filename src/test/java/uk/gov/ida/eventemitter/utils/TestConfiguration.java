@@ -29,6 +29,9 @@ public final class TestConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isEnabled() { return true; }
+
+    @Override
     public String getAccessKeyId() {
         return accessKeyId;
     }

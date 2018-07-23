@@ -11,8 +11,6 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import uk.gov.ida.eventemitter.Configuration;
 
-import java.util.Optional;
-
 public class TestEventEmitterModule extends AbstractModule {
 
     private final AWSKMS awsKms;
@@ -26,28 +24,28 @@ public class TestEventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private Optional<AmazonSQS> getAmazonSqs(final Optional<Configuration> configuration) {
-        if (configuration.isPresent() && configuration.get().getSourceQueueName() != null) {
-            return Optional.ofNullable(TestUtils.getClientSQS());
+    private AmazonSQS getAmazonSqs(final Configuration configuration) {
+        if (configuration.isEnabled() && configuration.getSourceQueueName() != null) {
+            return TestUtils.getClientSQS();
         }
-        return Optional.empty();
+        return null;
     }
 
     @Provides
     @Singleton
-    private Optional<AmazonS3> getAmazonS3(final Optional<Configuration> configuration) {
-        if (configuration.isPresent() &&
-            configuration.get().getBucketName() != null &&
-            configuration.get().getKeyName() != null) {
-            return Optional.ofNullable(TestUtils.getClientS3());
+    private AmazonS3 getAmazonS3(final Configuration configuration) {
+        if (configuration.isEnabled() &&
+            configuration.getBucketName() != null &&
+            configuration.getKeyName() != null) {
+            return TestUtils.getClientS3();
         }
-        return Optional.empty();
+        return null;
     }
 
     @Provides
     @Singleton
-    private Optional<AWSKMS> getAmazonKms(Optional<AmazonS3> amazonS3) {
-        return amazonS3.map(s3 -> awsKms);
+    private AWSKMS getAmazonKms(AmazonS3 amazonS3) {
+        return awsKms;
     }
 
     @Provides
