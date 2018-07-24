@@ -11,6 +11,8 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import uk.gov.ida.eventemitter.Configuration;
 
+import javax.annotation.Nullable;
+
 public class TestEventEmitterModule extends AbstractModule {
 
     private final AWSKMS awsKms;
@@ -24,6 +26,7 @@ public class TestEventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Nullable
     private AmazonSQS getAmazonSqs(final Configuration configuration) {
         if (configuration.isEnabled() && configuration.getSourceQueueName() != null) {
             return TestUtils.getClientSQS();
@@ -33,6 +36,7 @@ public class TestEventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Nullable
     private AmazonS3 getAmazonS3(final Configuration configuration) {
         if (configuration.isEnabled() &&
             configuration.getBucketName() != null &&
@@ -44,7 +48,8 @@ public class TestEventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private AWSKMS getAmazonKms(AmazonS3 amazonS3) {
+    @Nullable
+    private AWSKMS getAmazonKms(@Nullable AmazonS3 amazonS3) {
         return awsKms;
     }
 

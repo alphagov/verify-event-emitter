@@ -19,6 +19,7 @@ import com.amazonaws.util.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import javax.annotation.Nullable;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -32,6 +33,7 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Nullable
     private AWSCredentials getAmazonCredential(final Configuration configuration) {
         if (configuration.isEnabled()) {
             return new BasicAWSCredentials(configuration.getAccessKeyId(), configuration.getSecretAccessKey());
@@ -41,6 +43,7 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Nullable
     private AmazonSQS getAmazonSqs(
             final Configuration configuration,
             final AWSCredentials credentials) {
@@ -55,6 +58,7 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Nullable
     private AmazonS3 getAmazonS3(
             final Configuration configuration,
             final AWSCredentials credentials) {
@@ -69,8 +73,9 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Nullable
     private AWSKMS getAmazonKms(
-            final AmazonS3 amazonS3,
+            @Nullable final AmazonS3 amazonS3,
             final AWSCredentials credentials,
             final Configuration configuration) {
         if (configuration.isEnabled()) {
@@ -84,9 +89,10 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Nullable
     @Named("SourceQueueUrl")
     private String getQueueUrl(
-            final AmazonSQS amazonSqs,
+            @Nullable final AmazonSQS amazonSqs,
             final Configuration configuration) {
         if (configuration.isEnabled()) {
             return amazonSqs.getQueueUrl(configuration.getSourceQueueName()).getQueueUrl();
@@ -97,8 +103,8 @@ public class EventEmitterModule extends AbstractModule {
     @Provides
     @Singleton
     private SqsClient getAmazonSqsClient(
-            final AmazonSQS amazonSqs,
-            final @Named("SourceQueueUrl") String sourceQueueUrl,
+            @Nullable final AmazonSQS amazonSqs,
+            @Nullable final @Named("SourceQueueUrl") String sourceQueueUrl,
             final Configuration configuration) {
         if (configuration.isEnabled()) {
             return new AmazonSqsClient(amazonSqs, sourceQueueUrl);
@@ -109,7 +115,7 @@ public class EventEmitterModule extends AbstractModule {
     @Provides
     @Singleton
     private Encrypter getEncrypter(
-            final AmazonS3 amazonS3,
+            @Nullable final AmazonS3 amazonS3,
             final Configuration configuration,
             final ObjectMapper mapper,
             final AWSKMS amazonKms) {
@@ -123,11 +129,13 @@ public class EventEmitterModule extends AbstractModule {
                     return new EventEncrypter(key.getPlaintext().array(), mapper);
                 }
             } catch (SdkClientException e) {
-                System.err.println(
-                        String.format("Failed to load S3 bucket %s.", configuration.getBucketName()));
+                throw new EventEmitterConfigurationException(
+                    String.format("Failed to load S3 bucket %s.", configuration.getBucketName())
+                );
             } catch (IOException e) {
-                System.err.println(
-                        String.format("Failed to read data from %s in %s.", configuration.getKeyName(), configuration.getBucketName()));
+                throw new EventEmitterConfigurationException(
+                    String.format("Failed to read data from %s in %s.", configuration.getKeyName(), configuration.getBucketName())
+                );
             }
         }
         return new StubEncrypter();

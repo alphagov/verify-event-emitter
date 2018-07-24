@@ -5,13 +5,10 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.model.DecryptRequest;
 import com.amazonaws.services.kms.model.DecryptResult;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.Message;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.util.Modules;
@@ -26,7 +23,6 @@ import uk.gov.ida.eventemitter.utils.TestEvent;
 import uk.gov.ida.eventemitter.utils.TestEventEmitterModule;
 
 import java.nio.ByteBuffer;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Matchers.any;
@@ -35,18 +31,8 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
 
 @RunWith(LocalstackTestRunner.class)
-public class EventEmitterIntegrationTest {
-
-    private static final String ACCESS_KEY_ID = "accessKeyId";
-    private static final String ACCESS_SECRET_KEY = "accessSecretKey";
-    private static final String KEY = "aesEncryptionKey";
-    private static final String SOURCE_QUEUE_NAME = "sourceQueueName";
-    private static final String BUCKET_NAME = "bucket.name";
-    private static final String KEY_NAME = "keyName";
-    private static Injector injector;
-    private static String queueUrl;
-    private static AmazonSQS sqs;
-    private static AmazonS3 s3;
+public class EventEmitterIntegrationTest extends EventEmitterBaseConfiguration {
+    private static final boolean CONFIGURATION_ENABLED = true;
 
     @BeforeClass
     public static void setUp() {
@@ -61,7 +47,14 @@ public class EventEmitterIntegrationTest {
             @Provides
             @Singleton
             private Configuration getConfiguration() {
-                return new TestConfiguration(ACCESS_KEY_ID, ACCESS_SECRET_KEY, Regions.EU_WEST_2, SOURCE_QUEUE_NAME, BUCKET_NAME, KEY_NAME);
+                return new TestConfiguration(
+                    CONFIGURATION_ENABLED,
+                    ACCESS_KEY_ID,
+                    ACCESS_SECRET_KEY,
+                    Regions.EU_WEST_2,
+                    SOURCE_QUEUE_NAME,
+                    BUCKET_NAME,
+                    KEY_NAME);
             }
         }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule(awsKms)));
 
