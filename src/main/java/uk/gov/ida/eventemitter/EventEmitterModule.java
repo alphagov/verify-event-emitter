@@ -46,7 +46,7 @@ public class EventEmitterModule extends AbstractModule {
     @Nullable
     private AmazonSQS getAmazonSqs(
             final Configuration configuration,
-            final AWSCredentials credentials) {
+            @Nullable final AWSCredentials credentials) {
         if (configuration.isEnabled()) {
             return AmazonSQSClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
@@ -61,7 +61,7 @@ public class EventEmitterModule extends AbstractModule {
     @Nullable
     private AmazonS3 getAmazonS3(
             final Configuration configuration,
-            final AWSCredentials credentials) {
+            @Nullable final AWSCredentials credentials) {
         if (configuration.isEnabled()) {
             return AmazonS3ClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
@@ -76,7 +76,7 @@ public class EventEmitterModule extends AbstractModule {
     @Nullable
     private AWSKMS getAmazonKms(
             @Nullable final AmazonS3 amazonS3,
-            final AWSCredentials credentials,
+            @Nullable final AWSCredentials credentials,
             final Configuration configuration) {
         if (configuration.isEnabled()) {
             return AWSKMSClientBuilder.standard()
@@ -118,7 +118,7 @@ public class EventEmitterModule extends AbstractModule {
             @Nullable final AmazonS3 amazonS3,
             final Configuration configuration,
             final ObjectMapper mapper,
-            final AWSKMS amazonKms) {
+            @Nullable final AWSKMS amazonKms) {
         if (configuration.isEnabled()) {
             try {
                 S3Object s3Object = amazonS3.getObject(configuration.getBucketName(), configuration.getKeyName());

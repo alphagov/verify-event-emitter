@@ -1,12 +1,9 @@
 package uk.gov.ida.eventemitter;
 
 import cloud.localstack.LocalstackTestRunner;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.kms.AWSKMS;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Provides;
-import com.google.inject.util.Modules;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.BeforeClass;
@@ -14,13 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import uk.gov.ida.eventemitter.utils.TestConfiguration;
 import uk.gov.ida.eventemitter.utils.TestEvent;
-import uk.gov.ida.eventemitter.utils.TestEventEmitterModule;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(LocalstackTestRunner.class)
@@ -29,7 +24,6 @@ public class EventEmitterWithDisabledConfigTest extends EventEmitterBaseConfigur
 
     @BeforeClass
     public static void setUp() {
-        AWSKMS awsKms = mock(AWSKMS.class);
         injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {}
@@ -38,15 +32,15 @@ public class EventEmitterWithDisabledConfigTest extends EventEmitterBaseConfigur
             private Configuration getConfiguration() {
                 return new TestConfiguration(
                     CONFIGURATION_ENABLED,
-                    ACCESS_KEY_ID,
-                    ACCESS_SECRET_KEY,
-                    Regions.EU_WEST_2,
-                    SOURCE_QUEUE_NAME,
-                    BUCKET_NAME,
-                    KEY_NAME
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
                 );
             }
-        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule(awsKms)));
+        }, new EventEmitterModule());
     }
 
     @Test
