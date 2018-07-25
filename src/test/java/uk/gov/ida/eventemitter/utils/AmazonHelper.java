@@ -82,18 +82,18 @@ public class AmazonHelper {
         }
     }
 
-    public static Optional<String> getQueueUrl(final Injector injector) {
-        return (Optional<String>) injector.getInstance(
-            Key.get(TypeLiteral.get(Types.newParameterizedType(Optional.class, String.class)), Names.named("SourceQueueUrl")));
+    public static String getQueueUrl(final Injector injector) {
+        return (String) injector.getInstance(
+            Key.get(TypeLiteral.get(String.class), Names.named("SourceQueueUrl")));
     }
 
-    public static Optional<AmazonSQS> getInstanceOfAmazonSqs(final Injector injector) {
-        return (Optional<AmazonSQS>) injector.getInstance(
-            Key.get(TypeLiteral.get(Types.newParameterizedType(Optional.class, AmazonSQS.class))));
+    public static AmazonSQS getInstanceOfAmazonSqs(final Injector injector) {
+        return (AmazonSQS) injector.getInstance(
+                Key.get(TypeLiteral.get(AmazonSQS.class)));
     }
 
-    public static Optional<AmazonS3> getInstanceOfAmazonS3(final Injector injector) {
-        return (Optional<AmazonS3>) injector.getInstance(
-            Key.get(TypeLiteral.get(Types.newParameterizedType(Optional.class, AmazonS3.class))));
+    public static AmazonS3 getInstanceOfAmazonS3(final Injector injector) {
+        return (AmazonS3) injector.getInstance(
+            Key.get(TypeLiteral.get(AmazonS3.class)));
     }
 }

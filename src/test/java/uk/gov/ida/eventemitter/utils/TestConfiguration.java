@@ -5,6 +5,7 @@ import uk.gov.ida.eventemitter.Configuration;
 
 public final class TestConfiguration implements Configuration {
 
+    private final boolean enabled;
     private final String accessKeyId;
     private final String accessSecretKey;
     private final Regions region;
@@ -13,6 +14,7 @@ public final class TestConfiguration implements Configuration {
     private final String keyName;
 
     public TestConfiguration(
+        final boolean enabled,
         final String accessKeyId,
         final String accessSecretKey,
         final Regions region,
@@ -20,6 +22,7 @@ public final class TestConfiguration implements Configuration {
         final String bucketName,
         final String keyName) {
 
+        this.enabled = enabled;
         this.accessKeyId = accessKeyId;
         this.accessSecretKey = accessSecretKey;
         this.region = region;
@@ -27,6 +30,9 @@ public final class TestConfiguration implements Configuration {
         this.bucketName = bucketName;
         this.keyName = keyName;
     }
+
+    @Override
+    public boolean isEnabled() { return enabled; }
 
     @Override
     public String getAccessKeyId() {

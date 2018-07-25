@@ -11,7 +11,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import uk.gov.ida.eventemitter.Configuration;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class TestEventEmitterModule extends AbstractModule {
 
@@ -26,28 +26,31 @@ public class TestEventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private Optional<AmazonSQS> getAmazonSqs(final Optional<Configuration> configuration) {
-        if (configuration.isPresent() && configuration.get().getSourceQueueName() != null) {
-            return Optional.ofNullable(TestUtils.getClientSQS());
+    @Nullable
+    private AmazonSQS getAmazonSqs(final Configuration configuration) {
+        if (configuration.isEnabled() && configuration.getSourceQueueName() != null) {
+            return TestUtils.getClientSQS();
         }
-        return Optional.empty();
+        return null;
     }
 
     @Provides
     @Singleton
-    private Optional<AmazonS3> getAmazonS3(final Optional<Configuration> configuration) {
-        if (configuration.isPresent() &&
-            configuration.get().getBucketName() != null &&
-            configuration.get().getKeyName() != null) {
-            return Optional.ofNullable(TestUtils.getClientS3());
+    @Nullable
+    private AmazonS3 getAmazonS3(final Configuration configuration) {
+        if (configuration.isEnabled() &&
+            configuration.getBucketName() != null &&
+            configuration.getKeyName() != null) {
+            return TestUtils.getClientS3();
         }
-        return Optional.empty();
+        return null;
     }
 
     @Provides
     @Singleton
-    private Optional<AWSKMS> getAmazonKms(Optional<AmazonS3> amazonS3) {
-        return amazonS3.map(s3 -> awsKms);
+    @Nullable
+    private AWSKMS getAmazonKms(@Nullable AmazonS3 amazonS3) {
+        return awsKms;
     }
 
     @Provides

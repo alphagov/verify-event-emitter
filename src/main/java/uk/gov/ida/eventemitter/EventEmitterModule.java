@@ -19,12 +19,12 @@ import com.amazonaws.util.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import javax.annotation.Nullable;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Optional;
 
 public class EventEmitterModule extends AbstractModule {
 
@@ -33,122 +33,109 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private Optional<AWSCredentials> getAmazonCredential(final Optional<Configuration> configuration) {
-        return configuration.map(
-            config -> {
-                if (config.getAccessKeyId() != null && config.getSecretAccessKey() != null) {
-                    return new BasicAWSCredentials(config.getAccessKeyId(), config.getSecretAccessKey());
-                }
-                return null;
-            });
+    @Nullable
+    private AWSCredentials getAmazonCredential(final Configuration configuration) {
+        if (configuration.isEnabled()) {
+            return new BasicAWSCredentials(configuration.getAccessKeyId(), configuration.getSecretAccessKey());
+        }
+        return null;
     }
 
     @Provides
     @Singleton
-    private Optional<AmazonSQS> getAmazonSqs(
-        final Optional<Configuration> configuration,
-        final Optional<AWSCredentials> credentials) {
-
-        return configuration.map(
-            config -> {
-                if (config.getSourceQueueName() != null) {
-                    if (hasAmazonCredentialWithARegion(credentials, configuration)) {
-                        return AmazonSQSClientBuilder.standard()
-                                                     .withCredentials(new AWSStaticCredentialsProvider(credentials.get()))
-                                                     .withRegion(config.getRegion())
-                                                     .build();
-                    }
-                    return AmazonSQSClientBuilder.defaultClient();
-                }
-                return null;
-            });
+    @Nullable
+    private AmazonSQS getAmazonSqs(
+            final Configuration configuration,
+            final AWSCredentials credentials) {
+        if (configuration.isEnabled()) {
+            return AmazonSQSClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withRegion(configuration.getRegion())
+                    .build();
+        }
+        return null;
     }
 
     @Provides
     @Singleton
+    @Nullable
+    private AmazonS3 getAmazonS3(
+            final Configuration configuration,
+            final AWSCredentials credentials) {
+        if (configuration.isEnabled()) {
+            return AmazonS3ClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withRegion(configuration.getRegion())
+                    .build();
+        }
+        return null;
+    }
+
+    @Provides
+    @Singleton
+    @Nullable
+    private AWSKMS getAmazonKms(
+            @Nullable final AmazonS3 amazonS3,
+            final AWSCredentials credentials,
+            final Configuration configuration) {
+        if (configuration.isEnabled()) {
+            return AWSKMSClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withRegion(configuration.getRegion())
+                    .build();
+        }
+        return null;
+    }
+
+    @Provides
+    @Singleton
+    @Nullable
     @Named("SourceQueueUrl")
-    private Optional<String> getQueueUrl(
-    final Optional<AmazonSQS> amazonSqs,
-    final Optional<Configuration> configuration) {
-
-        return amazonSqs.map(sqs -> sqs.getQueueUrl(configuration.get().getSourceQueueName()).getQueueUrl());
+    private String getQueueUrl(
+            @Nullable final AmazonSQS amazonSqs,
+            final Configuration configuration) {
+        if (configuration.isEnabled()) {
+            return amazonSqs.getQueueUrl(configuration.getSourceQueueName()).getQueueUrl();
+        }
+        return null;
     }
 
     @Provides
     @Singleton
     private SqsClient getAmazonSqsClient(
-    final Optional<AmazonSQS> amazonSqs,
-    final @Named("SourceQueueUrl") Optional<String> sourceQueueUrl) {
-
-        if (amazonSqs.isPresent() && sourceQueueUrl.isPresent()){
-            return new AmazonSqsClient(amazonSqs.get(), sourceQueueUrl.get());
+            @Nullable final AmazonSQS amazonSqs,
+            @Nullable final @Named("SourceQueueUrl") String sourceQueueUrl,
+            final Configuration configuration) {
+        if (configuration.isEnabled()) {
+            return new AmazonSqsClient(amazonSqs, sourceQueueUrl);
         }
         return new StubSqsClient();
     }
 
     @Provides
     @Singleton
-    private Optional<AmazonS3> getAmazonS3(
-        final Optional<Configuration> configuration,
-        final Optional<AWSCredentials> credentials) {
-
-        return configuration.map(
-            config -> {
-                if (config.getBucketName() != null && config.getKeyName() != null) {
-                    if (hasAmazonCredentialWithARegion(credentials, configuration)) {
-                        return AmazonS3ClientBuilder.standard()
-                                                    .withCredentials(new AWSStaticCredentialsProvider(credentials.get()))
-                                                    .withRegion(config.getRegion())
-                                                    .build();
-                    }
-                    AmazonS3ClientBuilder.defaultClient();
-                }
-                return null;
-            });
-    }
-
-    @Provides
-    @Singleton
-    private Optional<AWSKMS> getAmazonKms(
-        final Optional<AmazonS3> amazonS3,
-        final Optional<AWSCredentials> credentials,
-        final Optional<Configuration> configuration) {
-
-        return amazonS3.map(s3 -> {
-            if (hasAmazonCredentialWithARegion(credentials, configuration)) {
-                return AWSKMSClientBuilder.standard()
-                                          .withCredentials(new AWSStaticCredentialsProvider(credentials.get()))
-                                          .withRegion(configuration.get().getRegion())
-                                          .build();
-            }
-            return AWSKMSClientBuilder.defaultClient();
-        });
-    }
-
-    @Provides
-    @Singleton
     private Encrypter getEncrypter(
-        final Optional<AmazonS3> amazonS3,
-        final Optional<Configuration> configuration,
-        final ObjectMapper mapper,
-        final Optional<AWSKMS> amazonKms) {
-
-        if (amazonS3.isPresent() && amazonKms.isPresent()) {
+            @Nullable final AmazonS3 amazonS3,
+            final Configuration configuration,
+            final ObjectMapper mapper,
+            final AWSKMS amazonKms) {
+        if (configuration.isEnabled()) {
             try {
-                S3Object s3Object = amazonS3.get().getObject(configuration.get().getBucketName(), configuration.get().getKeyName());
+                S3Object s3Object = amazonS3.getObject(configuration.getBucketName(), configuration.getKeyName());
                 try (S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent()) {
                     DecryptRequest request = new DecryptRequest().withCiphertextBlob(ByteBuffer.wrap(Base64.decode(IOUtils.toString(s3ObjectInputStream))));
-                    DecryptResult key = amazonKms.get().decrypt(request);
+                    DecryptResult key = amazonKms.decrypt(request);
 
                     return new EventEncrypter(key.getPlaintext().array(), mapper);
                 }
             } catch (SdkClientException e) {
-                System.err.println(
-                    String.format("Failed to load S3 bucket %s.", configuration.get().getBucketName()));
-            }
-            catch (IOException e) {
-                System.err.println(
-                    String.format("Failed to read data from %s in %s.", configuration.get().getKeyName(), configuration.get().getBucketName()));
+                throw new EventEmitterConfigurationException(
+                    String.format("Failed to load S3 bucket %s.", configuration.getBucketName())
+                );
+            } catch (IOException e) {
+                throw new EventEmitterConfigurationException(
+                    String.format("Failed to read data from %s in %s.", configuration.getKeyName(), configuration.getBucketName())
+                );
             }
         }
         return new StubEncrypter();
@@ -157,16 +144,8 @@ public class EventEmitterModule extends AbstractModule {
     @Provides
     @Singleton
     private EventEmitter getEventEmitter(
-        final SqsClient sqsClient,
-        final Encrypter encrypter) {
-
+            final SqsClient sqsClient,
+            final Encrypter encrypter) {
         return new EventEmitter(encrypter, sqsClient);
-    }
-
-    private boolean hasAmazonCredentialWithARegion(
-        final Optional<AWSCredentials> credentials,
-        final Optional<Configuration> configuration) {
-
-        return credentials.isPresent() && configuration.isPresent() && configuration.get().getRegion() != null;
     }
 }
