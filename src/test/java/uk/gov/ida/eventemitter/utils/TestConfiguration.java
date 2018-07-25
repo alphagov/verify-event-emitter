@@ -1,6 +1,7 @@
-package uk.gov.ida.eventemitter;
+package uk.gov.ida.eventemitter.utils;
 
 import com.amazonaws.regions.Regions;
+import uk.gov.ida.eventemitter.Configuration;
 
 public final class TestConfiguration implements Configuration {
 

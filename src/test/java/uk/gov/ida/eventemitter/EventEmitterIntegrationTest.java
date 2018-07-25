@@ -15,23 +15,24 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.util.Modules;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import uk.gov.ida.eventemitter.utils.AmazonHelper;
+import uk.gov.ida.eventemitter.utils.TestConfiguration;
+import uk.gov.ida.eventemitter.utils.TestDecrypter;
+import uk.gov.ida.eventemitter.utils.TestEvent;
+import uk.gov.ida.eventemitter.utils.TestEventEmitterModule;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
 
 @RunWith(LocalstackTestRunner.class)
 public class EventEmitterIntegrationTest {
@@ -80,9 +81,7 @@ public class EventEmitterIntegrationTest {
     @Test
     public void shouldEncryptMessageUsingEventEncrypterAndSendToSQS() throws Exception {
         final EventEmitter eventEmitter = injector.getInstance(EventEmitter.class);
-        final Map<String, String> details = new HashMap<>();
-        details.put("type", "network error");
-        final Event event = new TestEvent(UUID.randomUUID(), DateTime.now(DateTimeZone.UTC), "eventType", details);
+        final Event event = aTestEventMessage().build();
 
         eventEmitter.record(event);
 
