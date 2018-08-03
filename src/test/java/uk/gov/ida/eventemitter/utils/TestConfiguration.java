@@ -9,6 +9,7 @@ public final class TestConfiguration implements Configuration {
     private final String accessKeyId;
     private final String accessSecretKey;
     private final Regions region;
+    private final String queueAccountId;
     private final String sourceQueueName;
     private final String bucketName;
     private final String keyName;
@@ -18,6 +19,7 @@ public final class TestConfiguration implements Configuration {
         final String accessKeyId,
         final String accessSecretKey,
         final Regions region,
+        final String queueAccountId,
         final String sourceQueueName,
         final String bucketName,
         final String keyName) {
@@ -26,6 +28,7 @@ public final class TestConfiguration implements Configuration {
         this.accessKeyId = accessKeyId;
         this.accessSecretKey = accessSecretKey;
         this.region = region;
+        this.queueAccountId = queueAccountId;
         this.sourceQueueName = sourceQueueName;
         this.bucketName = bucketName;
         this.keyName = keyName;
@@ -62,5 +65,10 @@ public final class TestConfiguration implements Configuration {
     @Override
     public String getKeyName() {
         return keyName;
+    }
+
+    @Override
+    public String getQueueAccountId() {
+        return queueAccountId;
     }
 }
