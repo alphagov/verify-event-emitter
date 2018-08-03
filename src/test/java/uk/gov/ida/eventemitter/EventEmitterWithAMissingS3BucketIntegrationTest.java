@@ -56,6 +56,7 @@ public class EventEmitterWithAMissingS3BucketIntegrationTest extends EventEmitte
                     ACCESS_KEY_ID,
                     ACCESS_SECRET_KEY,
                     Regions.EU_WEST_2,
+                    QUEUE_ACCOUNT_ID,
                     SOURCE_QUEUE_NAME,
                     BUCKET_NAME,
                     KEY_NAME

@@ -11,6 +11,7 @@ public class EventEmitterBaseConfiguration {
     protected static final String ACCESS_KEY_ID = "accessKeyId";
     protected static final String ACCESS_SECRET_KEY = "accessSecretKey";
     protected static final String KEY = "aesEncryptionKey";
+    protected static final String QUEUE_ACCOUNT_ID = "queueAccountId";
     protected static final String SOURCE_QUEUE_NAME = "sourceQueueName";
     protected static final String BUCKET_NAME = "bucket.name";
     protected static final String KEY_NAME = "keyName";

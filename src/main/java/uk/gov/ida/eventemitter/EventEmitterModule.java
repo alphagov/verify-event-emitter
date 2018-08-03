@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
 import com.amazonaws.util.Base64;
 import com.amazonaws.util.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -95,7 +96,9 @@ public class EventEmitterModule extends AbstractModule {
             @Nullable final AmazonSQS amazonSqs,
             final Configuration configuration) {
         if (configuration.isEnabled()) {
-            return amazonSqs.getQueueUrl(configuration.getSourceQueueName()).getQueueUrl();
+            GetQueueUrlRequest queueUrlRequest = new GetQueueUrlRequest(configuration.getSourceQueueName())
+                    .withQueueOwnerAWSAccountId(configuration.getQueueAccountId());
+            return amazonSqs.getQueueUrl(queueUrlRequest).getQueueUrl();
         }
         return null;
     }

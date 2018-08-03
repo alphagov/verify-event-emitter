@@ -16,4 +16,6 @@ public interface Configuration {
     String getBucketName();
 
     String getKeyName();
+
+    String getQueueAccountId();
 }
