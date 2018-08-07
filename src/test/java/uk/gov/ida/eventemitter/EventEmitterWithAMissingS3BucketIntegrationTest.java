@@ -85,7 +85,7 @@ public class EventEmitterWithAMissingS3BucketIntegrationTest extends EventEmitte
     @Test
     public void shouldThrowExceptionWhenS3BucketIsMissing() {
         expectedException.expect(ProvisionException.class);
-        expectedException.expectMessage("Failed to load S3 bucket bucket.name.");
+        expectedException.expectMessage("Failed to load S3 bucket bucket.name");
         injector.getInstance(EventEmitter.class);
     }
 }
