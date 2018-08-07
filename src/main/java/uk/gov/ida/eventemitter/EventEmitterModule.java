@@ -131,13 +131,15 @@ public class EventEmitterModule extends AbstractModule {
 
                     return new EventEncrypter(key.getPlaintext().array(), mapper);
                 }
-            } catch (SdkClientException e) {
+            } catch (SdkClientException exception) {
                 throw new EventEmitterConfigurationException(
-                    String.format("Failed to load S3 bucket %s.", configuration.getBucketName())
+                    String.format("Failed to load S3 bucket %s", configuration.getBucketName()),
+                    exception
                 );
-            } catch (IOException e) {
+            } catch (IOException exception) {
                 throw new EventEmitterConfigurationException(
-                    String.format("Failed to read data from %s in %s.", configuration.getKeyName(), configuration.getBucketName())
+                    String.format("Failed to read data from %s in %s", configuration.getKeyName(), configuration.getBucketName()),
+                    exception
                 );
             }
         }
