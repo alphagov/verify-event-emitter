@@ -1,10 +1,5 @@
 package uk.gov.ida.eventemitter.utils;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.Message;
@@ -13,11 +8,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import com.google.inject.util.Types;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 public class AmazonHelper {
 
@@ -42,58 +34,13 @@ public class AmazonHelper {
         }
     }
 
-    public static void setUpS3Bucket(final AmazonS3 s3,
-                                     final String bucketName,
-                                     final String keyName,
-                                     final String key) {
-        try {
-            s3.createBucket(bucketName);
-        } catch (AmazonS3Exception e) {
-            System.err.println(e.getErrorMessage());
-        }
-
-        try {
-            s3.putObject(bucketName, keyName, key);
-        } catch (AmazonServiceException e) {
-            System.err.println(e.getErrorMessage());
-        }
-    }
-
-    public static void deleteBucket(final AmazonS3 s3,
-                                    final String bucketName) {
-        try {
-            ObjectListing objectListing = s3.listObjects(bucketName);
-            while (true) {
-                for (Iterator<?> iterator =
-                     objectListing.getObjectSummaries().iterator();
-                     iterator.hasNext();) {
-                    S3ObjectSummary summary = (S3ObjectSummary)iterator.next();
-                    s3.deleteObject(bucketName, summary.getKey());
-                }
-
-                if (objectListing.isTruncated()) {
-                    objectListing = s3.listNextBatchOfObjects(objectListing);
-                } else {
-                    break;
-                }
-            };
-        } catch (AmazonServiceException e) {
-            System.err.println(e.getErrorMessage());
-        }
-    }
-
     public static String getQueueUrl(final Injector injector) {
-        return (String) injector.getInstance(
+        return injector.getInstance(
             Key.get(TypeLiteral.get(String.class), Names.named("SourceQueueUrl")));
     }
 
     public static AmazonSQS getInstanceOfAmazonSqs(final Injector injector) {
-        return (AmazonSQS) injector.getInstance(
+        return injector.getInstance(
                 Key.get(TypeLiteral.get(AmazonSQS.class)));
-    }
-
-    public static AmazonS3 getInstanceOfAmazonS3(final Injector injector) {
-        return (AmazonS3) injector.getInstance(
-            Key.get(TypeLiteral.get(AmazonS3.class)));
     }
 }

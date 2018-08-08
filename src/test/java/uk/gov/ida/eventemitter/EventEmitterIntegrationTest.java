@@ -36,10 +36,6 @@ public class EventEmitterIntegrationTest extends EventEmitterBaseConfiguration {
 
     @BeforeClass
     public static void setUp() {
-        AWSKMS awsKms = mock(AWSKMS.class);
-        DecryptResult decryptResult = mock(DecryptResult.class);
-        when(awsKms.decrypt(any(DecryptRequest.class))).thenReturn(decryptResult);
-        when(decryptResult.getPlaintext()).thenReturn(ByteBuffer.wrap(KEY.getBytes()));
         injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {}
@@ -54,22 +50,18 @@ public class EventEmitterIntegrationTest extends EventEmitterBaseConfiguration {
                     Regions.EU_WEST_2,
                     QUEUE_ACCOUNT_ID,
                     SOURCE_QUEUE_NAME,
-                    BUCKET_NAME,
-                    KEY_NAME);
+                    KEY);
             }
-        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule(awsKms)));
+        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
 
         sqs = AmazonHelper.getInstanceOfAmazonSqs(injector);
-        s3 = AmazonHelper.getInstanceOfAmazonS3(injector);
         AmazonHelper.createSourceQueue(sqs, SOURCE_QUEUE_NAME);
-        AmazonHelper.setUpS3Bucket(s3, BUCKET_NAME, KEY_NAME, KEY);
         queueUrl = AmazonHelper.getQueueUrl(injector);
     }
 
     @AfterClass
     public static void tearDown() {
         sqs.deleteQueue(queueUrl);
-        AmazonHelper.deleteBucket(s3, BUCKET_NAME);
     }
 
     @Test

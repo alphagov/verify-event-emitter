@@ -13,9 +13,7 @@ public interface Configuration {
 
     String getSourceQueueName();
 
-    String getBucketName();
-
-    String getKeyName();
-
     String getQueueAccountId();
+
+    String getEncryptionKey();
 }
