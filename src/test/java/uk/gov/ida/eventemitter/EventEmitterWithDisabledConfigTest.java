@@ -37,7 +37,6 @@ public class EventEmitterWithDisabledConfigTest extends EventEmitterBaseConfigur
                     null,
                     null,
                     null,
-                    null,
                     null
                 );
             }

@@ -11,8 +11,7 @@ public final class TestConfiguration implements Configuration {
     private final Regions region;
     private final String queueAccountId;
     private final String sourceQueueName;
-    private final String bucketName;
-    private final String keyName;
+    private final byte[] encryptionKey;
 
     public TestConfiguration(
         final boolean enabled,
@@ -21,8 +20,7 @@ public final class TestConfiguration implements Configuration {
         final Regions region,
         final String queueAccountId,
         final String sourceQueueName,
-        final String bucketName,
-        final String keyName) {
+        final byte[] encryptionKey) {
 
         this.enabled = enabled;
         this.accessKeyId = accessKeyId;
@@ -30,8 +28,7 @@ public final class TestConfiguration implements Configuration {
         this.region = region;
         this.queueAccountId = queueAccountId;
         this.sourceQueueName = sourceQueueName;
-        this.bucketName = bucketName;
-        this.keyName = keyName;
+        this.encryptionKey = encryptionKey;
     }
 
     @Override
@@ -56,19 +53,14 @@ public final class TestConfiguration implements Configuration {
     public String getSourceQueueName() {
         return sourceQueueName;
     }
-
-    @Override
-    public String getBucketName() {
-        return bucketName;
-    }
-
-    @Override
-    public String getKeyName() {
-        return keyName;
-    }
-
     @Override
     public String getQueueAccountId() {
         return queueAccountId;
     }
+
+    @Override
+    public byte[] getEncryptionKey() {
+        return encryptionKey;
+    }
+
 }

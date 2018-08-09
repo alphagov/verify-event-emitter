@@ -3,6 +3,7 @@ package uk.gov.ida.eventemitter;
 import com.amazonaws.regions.Regions;
 
 public interface Configuration {
+
     boolean isEnabled();
 
     String getAccessKeyId();
@@ -13,9 +14,7 @@ public interface Configuration {
 
     String getSourceQueueName();
 
-    String getBucketName();
-
-    String getKeyName();
-
     String getQueueAccountId();
+
+    byte[] getEncryptionKey();
 }

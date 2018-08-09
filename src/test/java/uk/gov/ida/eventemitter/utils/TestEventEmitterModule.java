@@ -1,8 +1,6 @@
 package uk.gov.ida.eventemitter.utils;
 
 import cloud.localstack.TestUtils;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -15,10 +13,7 @@ import javax.annotation.Nullable;
 
 public class TestEventEmitterModule extends AbstractModule {
 
-    private final AWSKMS awsKms;
-
-    public TestEventEmitterModule(AWSKMS awsKms) {
-        this.awsKms = awsKms;
+    public TestEventEmitterModule() {
     }
 
     @Override
@@ -32,25 +27,6 @@ public class TestEventEmitterModule extends AbstractModule {
             return TestUtils.getClientSQS();
         }
         return null;
-    }
-
-    @Provides
-    @Singleton
-    @Nullable
-    private AmazonS3 getAmazonS3(final Configuration configuration) {
-        if (configuration.isEnabled() &&
-            configuration.getBucketName() != null &&
-            configuration.getKeyName() != null) {
-            return TestUtils.getClientS3();
-        }
-        return null;
-    }
-
-    @Provides
-    @Singleton
-    @Nullable
-    private AWSKMS getAmazonKms(@Nullable AmazonS3 amazonS3) {
-        return awsKms;
     }
 
     @Provides
