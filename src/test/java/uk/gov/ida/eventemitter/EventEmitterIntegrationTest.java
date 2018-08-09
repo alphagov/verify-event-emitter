@@ -73,7 +73,7 @@ public class EventEmitterIntegrationTest extends EventEmitterBaseConfiguration {
 
         final Message message = AmazonHelper.getAMessageFromSqs(sqs, queueUrl);
         sqs.deleteMessage(queueUrl, message.getReceiptHandle());
-        final TestDecrypter<TestEvent> decrypter = new TestDecrypter(KEY.getBytes(), injector.getInstance(ObjectMapper.class));
+        final TestDecrypter<TestEvent> decrypter = new TestDecrypter(KEY, injector.getInstance(ObjectMapper.class));
         final Event actualEvent = decrypter.decrypt(message.getBody(), TestEvent.class);
 
         assertThat(actualEvent).isEqualTo(event);

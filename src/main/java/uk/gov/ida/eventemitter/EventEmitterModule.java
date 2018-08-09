@@ -59,13 +59,13 @@ public class EventEmitterModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
+    @Nullable
     @Named("EncryptionKey")
-    private String getEncryptionKey(final Configuration configuration) {
+    private byte[] getEncryptionKey(final Configuration configuration) {
         if (configuration.isEnabled()) {
              return configuration.getEncryptionKey();
         }
-        return "";
+        return null;
     }
 
     @Provides
@@ -85,9 +85,9 @@ public class EventEmitterModule extends AbstractModule {
     private Encrypter getEncrypter(
             final Configuration configuration,
             final ObjectMapper mapper,
-            final @Named("EncryptionKey") String encryptionKey) {
+            final @Nullable @Named("EncryptionKey") byte[] encryptionKey) {
         if (configuration.isEnabled()) {
-            return new EventEncrypter(encryptionKey.getBytes(), mapper);
+            return new EventEncrypter(encryptionKey, mapper);
         }
         return new StubEncrypter();
     }

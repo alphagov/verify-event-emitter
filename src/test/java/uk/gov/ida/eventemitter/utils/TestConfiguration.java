@@ -11,7 +11,7 @@ public final class TestConfiguration implements Configuration {
     private final Regions region;
     private final String queueAccountId;
     private final String sourceQueueName;
-    private final String encryptionKey;
+    private final byte[] encryptionKey;
 
     public TestConfiguration(
         final boolean enabled,
@@ -20,7 +20,7 @@ public final class TestConfiguration implements Configuration {
         final Regions region,
         final String queueAccountId,
         final String sourceQueueName,
-        final String encryptionKey) {
+        final byte[] encryptionKey) {
 
         this.enabled = enabled;
         this.accessKeyId = accessKeyId;
@@ -59,7 +59,7 @@ public final class TestConfiguration implements Configuration {
     }
 
     @Override
-    public String getEncryptionKey() {
+    public byte[] getEncryptionKey() {
         return encryptionKey;
     }
 
