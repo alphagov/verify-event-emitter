@@ -2,9 +2,6 @@ package uk.gov.ida.eventemitter;
 
 import cloud.localstack.LocalstackTestRunner;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.model.DecryptRequest;
-import com.amazonaws.services.kms.model.DecryptResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
@@ -22,12 +19,7 @@ import uk.gov.ida.eventemitter.utils.TestDecrypter;
 import uk.gov.ida.eventemitter.utils.TestEvent;
 import uk.gov.ida.eventemitter.utils.TestEventEmitterModule;
 
-import java.nio.ByteBuffer;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
 
 @RunWith(LocalstackTestRunner.class)
