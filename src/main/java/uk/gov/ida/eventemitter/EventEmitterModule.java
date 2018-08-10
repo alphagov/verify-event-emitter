@@ -84,10 +84,9 @@ public class EventEmitterModule extends AbstractModule {
     @Singleton
     private Encrypter getEncrypter(
             final Configuration configuration,
-            final ObjectMapper mapper,
             final @Nullable @Named("EncryptionKey") byte[] encryptionKey) {
         if (configuration.isEnabled()) {
-            return new EventEncrypter(encryptionKey, mapper);
+            return new EventEncrypter(encryptionKey);
         }
         return new StubEncrypter();
     }
