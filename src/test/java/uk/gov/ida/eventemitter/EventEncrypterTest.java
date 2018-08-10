@@ -2,6 +2,7 @@ package uk.gov.ida.eventemitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.ida.eventemitter.utils.TestDecrypter;
@@ -17,24 +18,26 @@ public class EventEncrypterTest {
     private TestEvent event;
     private EventEncrypter eventEncrypter;
     private TestDecrypter<TestEvent> decrypter;
+    private ObjectMapper mapper;
 
     @Before
     public void setUp() {
         event = aTestEventMessage().build();
 
-        ObjectMapper mapper = new ObjectMapper();
+        mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
 
-        eventEncrypter = new EventEncrypter(KEY, mapper);
+        eventEncrypter = new EventEncrypter(KEY);
         decrypter = new TestDecrypter<>(KEY, mapper);
     }
 
     @Test
     public void shouldEncryptEvent() throws Exception {
         final String encryptedEvent = eventEncrypter.encrypt(event);
+        String decryptedEvent = decrypter.decrypt(encryptedEvent);
+        assertThat(mapper.readValue(decryptedEvent, TestEvent.class)).isEqualTo(event);
 
-        TestEvent actualEvent = decrypter.decrypt(encryptedEvent, TestEvent.class);
-
-        assertThat(actualEvent).isEqualTo(event);
+        JSONObject jsonObject = new JSONObject(decryptedEvent);
+        assertThat(jsonObject.getLong("timestamp")).isEqualTo(event.getTimestamp().getMillis());
     }
 }

@@ -1,6 +1,7 @@
 package uk.gov.ida.eventemitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
 
@@ -13,13 +14,11 @@ public class EventEncrypter implements Encrypter {
 
     public static final int INITIALISATION_VECTOR_SIZE = 16;
     private final byte[] key;
-    private final ObjectMapper mapper;
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JodaModule());
 
     @Inject
-    public EventEncrypter(final byte[] key,
-                          final ObjectMapper mapper) {
+    public EventEncrypter(final byte[] key) {
         this.key = key;
-        this.mapper = mapper;
     }
 
     public String encrypt(final Event event) throws Exception {
