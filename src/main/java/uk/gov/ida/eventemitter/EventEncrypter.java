@@ -21,12 +21,17 @@ public class EventEncrypter implements Encrypter {
         this.key = key;
     }
 
-    public String encrypt(final Event event) throws Exception {
-        final byte[] initialisationVector = generateInitialisationVector();
-        final byte[] encryptedEvent = encryptEvent(event, initialisationVector);
-        final byte[] encryptedEventAndIv = combineEncryptedEventWithIV(encryptedEvent, initialisationVector);
+    public String encrypt(final Event event) throws EventEncryptionException {
 
-        return Base64.encodeBase64String(encryptedEventAndIv);
+        try {
+            final byte[] initialisationVector = generateInitialisationVector();
+            final byte[] encryptedEvent = encryptEvent(event, initialisationVector);
+            final byte[] encryptedEventAndIv = combineEncryptedEventWithIV(encryptedEvent, initialisationVector);
+            return Base64.encodeBase64String(encryptedEventAndIv);
+        } catch(Exception e) {
+            throw new EventEncryptionException(e);
+        }
+
     }
 
     private byte[] generateInitialisationVector() {

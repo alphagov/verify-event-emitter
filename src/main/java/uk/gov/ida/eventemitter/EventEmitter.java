@@ -1,17 +1,25 @@
 package uk.gov.ida.eventemitter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.Optional;
 
 public class EventEmitter {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EventEmitter.class);
+
     private final Encrypter encrypter;
-    private final SqsClient sqsClient;
+    private final EventSender eventSender;
 
     @Inject
     public EventEmitter(final Encrypter encrypter,
-                        final SqsClient sqsClient) {
+                        final EventSender eventSender) {
         this.encrypter = encrypter;
-        this.sqsClient = sqsClient;
+        this.eventSender = eventSender;
     }
 
     public void record(final Event event) {
@@ -19,13 +27,17 @@ public class EventEmitter {
             String encryptedEvent = null;
             try {
                 encryptedEvent = encrypter.encrypt(event);
-                sqsClient.send(event, encryptedEvent);
-            } catch (Exception e) {
-                System.err.println(String.format("Failed to send a message [Event Id: %s] to the queue. Error Message: %s", event.getEventId(), e.getMessage()));
-                System.err.println(String.format("Event Message: %s", encryptedEvent));
+                eventSender.sendAuthenticated(event, encryptedEvent);
+                LOG.info(String.format("Sent Event Message [Event Id: %s]", event.getEventId()));
+            } catch (AwsResponseException awsEx) {
+                LOG.error(String.format("Failed to send a message [Event Id: %s] to the queue. Status: %s Error Message: %s", event.getEventId(), awsEx.getResponse().getStatusCode(), awsEx.getMessage()));
+                LOG.error(String.format("Event Message: %s", encryptedEvent));
+            } catch ( EventEncryptionException | java.io.UnsupportedEncodingException ex) {
+                LOG.error(String.format("Failed to send a message [Event Id: %s] to the queue. Error Message: %s", event.getEventId(), ex.getMessage()));
+                LOG.error(String.format("Event Message: %s", encryptedEvent));
             }
         } else {
-            System.err.println("Unable to send a message due to event containing null value.");
+            LOG.error("Unable to send a message due to event containing null value.");
         }
     }
 }

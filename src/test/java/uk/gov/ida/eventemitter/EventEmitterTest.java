@@ -28,39 +28,42 @@ public class EventEmitterTest {
     private EventEncrypter eventEncrypter;
 
     @Mock
-    private SqsClient sqsClient;
+    private EventSender eventSender;
 
     @Before
     public void setUp() throws Exception {
         event = aTestEventMessage().build();
         when(eventEncrypter.encrypt(event)).thenReturn(ENCRYPTED_EVENT);
 
-        eventEmitter = new EventEmitter(eventEncrypter, sqsClient);
+        eventEmitter = new EventEmitter(eventEncrypter, eventSender);
     }
 
     @Test
     public void shouldEncryptAndSendEncryptedEventToSqs() throws Exception {
         eventEmitter.record(event);
 
-         verify(eventEncrypter).encrypt(event);
-         verify(sqsClient).send(event, ENCRYPTED_EVENT);
+        verify(eventEncrypter).encrypt(event);
+        verify(eventSender).sendAuthenticated(event, ENCRYPTED_EVENT);
     }
 
     @Test
     public void shouldLogErrorAfterFailingToEncrypt() throws Exception {
         final String errorMessage = "Failed to encrypt.";
-        when(eventEncrypter.encrypt(event)).thenThrow(new RuntimeException(errorMessage));
+        when(eventEncrypter.encrypt(event)).thenThrow(new EventEncryptionException(String.format(
+                "Failed to send a message [Event Id: %s] to the queue. Error Message: %s\nEvent Message: null\n",
+                event.getEventId().toString(),
+                errorMessage)));
 
         try (ByteArrayOutputStream errorContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(errorContent)) {
-            System.setErr(printStream);
+            System.setOut(printStream);
             eventEmitter.record(event);
-            System.setErr(System.err);
+            System.setOut(System.out);
 
             assertThat(errorContent.toString()).contains(String.format(
-                "Failed to send a message [Event Id: %s] to the queue. Error Message: %s\nEvent Message: null\n",
-                event.getEventId().toString(),
-                errorMessage
+                    "Failed to send a message [Event Id: %s] to the queue. Error Message: %s\nEvent Message: null\n",
+                    event.getEventId().toString(),
+                    errorMessage
             ));
         }
     }
@@ -69,9 +72,9 @@ public class EventEmitterTest {
     public void shouldLogErrorWhenEventIsNull() throws IOException {
         try (ByteArrayOutputStream errorContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(errorContent)) {
-            System.setErr(printStream);
+            System.setOut(printStream);
             eventEmitter.record(null);
-            System.setErr(System.err);
+            System.setOut(System.out);
 
             assertThat(errorContent.toString()).contains("Unable to send a message due to event containing null value.\n");
         }

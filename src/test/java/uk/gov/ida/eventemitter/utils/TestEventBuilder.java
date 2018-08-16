@@ -12,7 +12,8 @@ public class TestEventBuilder {
     private UUID eventId = UUID.randomUUID();
     private DateTime timestamp = DateTime.now().withZone(DateTimeZone.UTC);
     private String eventType = "error";
-    private Map<String, String> details= new HashMap<>();
+    private Map<String, String> details = new HashMap<>();
+
     {
         details.put("message", "Session error");
         details.put("error_id", UUID.randomUUID().toString());
@@ -24,9 +25,9 @@ public class TestEventBuilder {
 
     public TestEvent build() {
         return new TestEvent(
-            eventId,
-            timestamp,
-            eventType,
-            details);
+                eventId,
+                timestamp,
+                eventType,
+                details);
     }
 }

@@ -1,43 +1,44 @@
 package uk.gov.ida.eventemitter;
 
-import cloud.localstack.LocalstackTestRunner;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Provides;
+import org.glassfish.jersey.client.JerseyClient;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import uk.gov.ida.eventemitter.utils.TestConfiguration;
 import uk.gov.ida.eventemitter.utils.TestEvent;
 
+import javax.ws.rs.client.Client;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@RunWith(LocalstackTestRunner.class)
-public class EventEmitterWithDisabledConfigTest extends EventEmitterBaseConfiguration {
+
+public class EventEmitterWithDisabledConfigTest extends EventEmitterTestBaseConfiguration {
     private static final boolean CONFIGURATION_ENABLED = false;
 
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(new AbstractModule() {
             @Override
-            protected void configure() {}
+            protected void configure() {
+                bind(Client.class).to(JerseyClient.class);
+            }
 
             @Provides
             private Configuration getConfiguration() {
                 return new TestConfiguration(
-                    CONFIGURATION_ENABLED,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                        CONFIGURATION_ENABLED,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
                 );
             }
         }, new EventEmitterModule());
@@ -51,6 +52,6 @@ public class EventEmitterWithDisabledConfigTest extends EventEmitterBaseConfigur
 
         eventEmitter.record(event);
 
-        assertThat(eventEmitter.getClass().equals(StubSqsClient.class));
+        assertThat(eventEmitter.getClass().equals(StubEventSender.class));
     }
 }
