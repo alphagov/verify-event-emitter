@@ -4,9 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.Optional;
 
 public class EventEmitter {
 
@@ -30,10 +27,10 @@ public class EventEmitter {
                 eventSender.sendAuthenticated(event, encryptedEvent);
                 LOG.info(String.format("Sent Event Message [Event Id: %s]", event.getEventId()));
             } catch (AwsResponseException awsEx) {
-                LOG.error(String.format("Failed to send a message [Event Id: %s] to the queue. Status: %s Error Message: %s", event.getEventId(), awsEx.getResponse().getStatusCode(), awsEx.getMessage()));
+                LOG.error(String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s", event.getEventId(), awsEx.getResponse().getStatusCode(), awsEx.getMessage()));
                 LOG.error(String.format("Event Message: %s", encryptedEvent));
-            } catch ( EventEncryptionException | java.io.UnsupportedEncodingException ex) {
-                LOG.error(String.format("Failed to send a message [Event Id: %s] to the queue. Error Message: %s", event.getEventId(), ex.getMessage()));
+            } catch (Exception ex) {
+                LOG.error(String.format("Failed to send a message [Event Id: %s] to the api gateway. Error Message: %s", event.getEventId(), ex.getMessage()));
                 LOG.error(String.format("Event Message: %s", encryptedEvent));
             }
         } else {

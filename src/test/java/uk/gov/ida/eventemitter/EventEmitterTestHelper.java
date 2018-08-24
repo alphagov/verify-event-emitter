@@ -14,7 +14,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class EventEmitterTestBaseConfiguration {
+public class EventEmitterTestHelper {
 
     protected static final String ACCESS_KEY_ID = "accessKeyId";
     protected static final String ACCESS_SECRET_KEY = "accessSecretKey";
@@ -24,15 +24,14 @@ public abstract class EventEmitterTestBaseConfiguration {
 
     protected static Injector injector;
 
-
-    protected void createTestConfiguration(
+    public static Injector createTestConfiguration(
             Boolean isEnabled,
             String accessKey,
             String secretAccessKey,
             Regions region,
             URI uri
     ) {
-        injector = Guice.createInjector(new AbstractModule() {
+        return Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
             }
@@ -50,9 +49,10 @@ public abstract class EventEmitterTestBaseConfiguration {
                 );
             }
         }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
+
     }
 
-    protected Map<String, String> createTestResponseHeadersMap() {
+    public static Map<String, String> createTestResponseHeadersMap() {
         final Map<String, String> responseHeaders = new HashMap<String, String>();
         responseHeaders.put("Content-Length", "1");
         responseHeaders.put("Connection", "2");

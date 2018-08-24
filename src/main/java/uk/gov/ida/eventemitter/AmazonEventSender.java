@@ -33,7 +33,7 @@ public class AmazonEventSender implements EventSender {
         this.region = region;
     }
 
-    public Response<Void> sendAuthenticated(final Event event, final String encryptedEvent) throws AwsResponseException, java.io.UnsupportedEncodingException {
+    public void sendAuthenticated(final Event event, final String encryptedEvent) throws AwsResponseException, UnsupportedEncodingException {
 
         Request<Void> request = createRequest(encryptedEvent);
         request = signRequest(request);
@@ -44,7 +44,7 @@ public class AmazonEventSender implements EventSender {
                 .request(request)
                 .errorResponseHandler(new HttpResponseHandler<AwsResponseException>() {
                     @Override
-                    public AwsResponseException handle(HttpResponse response) throws Exception {
+                    public AwsResponseException handle(HttpResponse response) {
                         return new AwsResponseException(response);
                     }
 
@@ -54,8 +54,6 @@ public class AmazonEventSender implements EventSender {
                     }
                 })
                 .execute();
-
-        return response;
     }
 
     private Request<Void> signRequest(Request<Void> request) {
@@ -68,8 +66,8 @@ public class AmazonEventSender implements EventSender {
 
     private Request<Void> createRequest(String encryptedEvent) throws UnsupportedEncodingException {
 
-        Request<Void> request = new DefaultRequest<Void>(SERVICE_NAME);
-        HashMap<String, String> headersMap = new HashMap<String, String>();
+        Request<Void> request = new DefaultRequest<>(SERVICE_NAME);
+        HashMap<String, String> headersMap = new HashMap<>();
         headersMap.put("Content-type", "application/json");
         request.setHeaders(headersMap);
         request.setHttpMethod(HttpMethodName.POST);

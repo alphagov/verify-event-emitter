@@ -6,82 +6,55 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.inject.util.Modules;
+import com.google.inject.Injector;
 import httpstub.HttpStubRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.eventemitter.utils.TestConfiguration;
+import uk.gov.ida.eventemitter.utils.HttpResponse;
 import uk.gov.ida.eventemitter.utils.TestDecrypter;
 import uk.gov.ida.eventemitter.utils.TestEvent;
-import uk.gov.ida.eventemitter.utils.TestEventEmitterModule;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static uk.gov.ida.eventemitter.EventEmitterTestHelper.ACCESS_KEY_ID;
+import static uk.gov.ida.eventemitter.EventEmitterTestHelper.ACCESS_SECRET_KEY;
+import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE;
+import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE_INVALID;
+import static uk.gov.ida.eventemitter.EventEmitterTestHelper.KEY;
 import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
 
-public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfiguration {
+@RunWith(MockitoJUnitRunner.class)
+public class EventEmitterIntegrationTest {
 
     private static final boolean CONFIGURATION_ENABLED = true;
     private static TestAppender testAppender = new TestAppender();
 
-    private enum HttpResponse {
-
-        HTTP_200(200, "OK"),
-        HTTP_403(403, "Forbidden"),
-        HTTP_404(404, "Not Found"),
-        HTTP_504(504, "Gateway Timeout");
-
-        private int statusCode;
-        private String statusText;
-
-        HttpResponse(int statusCode, String statusText) {
-            this.statusCode = statusCode;
-            this.statusText = statusText;
-        }
-
-        public int getStatusCode() {
-            return statusCode;
-        }
-
-        public String getStatusText() {
-            return statusText;
-        }
-    }
+    private static Injector injector = null;
+    private static EventEmitter eventEmitter;
 
     @ClassRule
     public static HttpStubRule apiGatewayStub = new HttpStubRule();
 
     @BeforeClass
     public static void setUp() {
-        injector = Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
 
-            }
+        injector = EventEmitterTestHelper.createTestConfiguration(CONFIGURATION_ENABLED,
+                ACCESS_KEY_ID,
+                ACCESS_SECRET_KEY,
+                Regions.EU_WEST_2,
+                URI.create(apiGatewayStub.baseUri().build().toString() + AUDIT_EVENTS_API_RESOURCE));
 
-            @Provides
-            @Singleton
-            private Configuration getConfiguration() {
-                return new TestConfiguration(
-                        CONFIGURATION_ENABLED,
-                        ACCESS_KEY_ID,
-                        ACCESS_SECRET_KEY,
-                        Regions.EU_WEST_2,
-                        URI.create(apiGatewayStub.baseUri().build().toString() + AUDIT_EVENTS_API_RESOURCE),
-                        KEY);
-            }
-        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
+        eventEmitter = injector.getInstance(EventEmitter.class);
+
     }
 
     @Before
@@ -89,10 +62,11 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
         testAppender.start();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.addAppender(testAppender);
+        apiGatewayStub.reset();
     }
 
     @After
-    public void tearDownLogAppender() throws Exception {
+    public void tearDownLogAppender() {
         testAppender.stop();
         TestAppender.events.clear();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -103,8 +77,6 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
     @Test
     public void shouldEncryptMessageUsingEventEncrypterAndSendToAPIGateway() throws Exception {
 
-
-        final EventEmitter eventEmitter = injector.getInstance(EventEmitter.class);
         final Event event = aTestEventMessage().build();
 
         apiGatewayStub.register(AUDIT_EVENTS_API_RESOURCE, HttpResponse.HTTP_200.getStatusCode());
@@ -122,9 +94,8 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
     }
 
     @Test
-    public void shouldFailSilentlyWithIncorrectResource() throws Exception {
+    public void shouldFailSilentlyWithIncorrectResource() {
 
-        final EventEmitter eventEmitter = injector.getInstance(EventEmitter.class);
         final Event event = aTestEventMessage().build();
 
         apiGatewayStub.register(AUDIT_EVENTS_API_RESOURCE_INVALID, HttpResponse.HTTP_404.getStatusCode());
@@ -133,7 +104,7 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
 
         assertThat(
                 TestAppender.events.get(0).toString()).contains(
-                String.format("Failed to send a message [Event Id: %s] to the queue. Status: %s Error Message: %s",
+                String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s",
                         event.getEventId(),
                         HttpResponse.HTTP_404.getStatusCode(),
                         HttpResponse.HTTP_404.getStatusText()));
@@ -141,9 +112,8 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
     }
 
     @Test
-    public void shouldFailSilentlyWithUnauthorized() throws Exception {
+    public void shouldFailSilentlyWithUnauthorized() {
 
-        final EventEmitter eventEmitter = injector.getInstance(EventEmitter.class);
         final Event event = aTestEventMessage().build();
 
         apiGatewayStub.register(AUDIT_EVENTS_API_RESOURCE, HttpResponse.HTTP_403.getStatusCode());
@@ -152,7 +122,7 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
 
         assertThat(
                 TestAppender.events.get(0).toString()).contains(
-                String.format("Failed to send a message [Event Id: %s] to the queue. Status: %s Error Message: %s",
+                String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s",
                         event.getEventId(),
                         HttpResponse.HTTP_403.getStatusCode(),
                         HttpResponse.HTTP_403.getStatusText()));
@@ -160,9 +130,8 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
     }
 
     @Test
-    public void shouldFailSilentlyWithTimeout() throws Exception {
+    public void shouldFailSilentlyWithTimeout() {
 
-        final EventEmitter eventEmitter = injector.getInstance(EventEmitter.class);
         final Event event = aTestEventMessage().build();
 
         apiGatewayStub.register(AUDIT_EVENTS_API_RESOURCE, HttpResponse.HTTP_504.getStatusCode());
@@ -171,7 +140,7 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
 
         assertThat(
                 TestAppender.events.get(0).toString()).contains(
-                String.format("Failed to send a message [Event Id: %s] to the queue. Status: %s Error Message: %s",
+                String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s",
                         event.getEventId(),
                         HttpResponse.HTTP_504.getStatusCode(),
                         HttpResponse.HTTP_504.getStatusText()));
@@ -179,9 +148,7 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
     }
 
     @Test(expected = Test.None.class)
-    public void shouldFailSilentlyWithNullEvent() throws Exception {
-
-        final EventEmitter eventEmitter = injector.getInstance(EventEmitter.class);
+    public void shouldFailSilentlyWithNullEvent() {
 
         eventEmitter.record(null);
 
@@ -202,7 +169,6 @@ public class EventEmitterIntegrationTest extends EventEmitterTestBaseConfigurati
                 events.add(eventObject);
             }
         }
-
     }
 
 }
