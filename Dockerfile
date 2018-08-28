@@ -1,10 +1,8 @@
 FROM govukverify/java8:latest
 
+
 RUN apt-get update \
-    && apt-get install -y python-pip build-essential maven sudo \
-    && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - \
-    && apt-get install -y nodejs \
-    && pip install virtualenv
+    && apt-get install -y  build-essential maven sudo
 
 WORKDIR /home/user
 RUN groupadd -g 116 team;\

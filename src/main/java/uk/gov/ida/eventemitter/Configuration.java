@@ -2,6 +2,8 @@ package uk.gov.ida.eventemitter;
 
 import com.amazonaws.regions.Regions;
 
+import java.net.URI;
+
 public interface Configuration {
 
     boolean isEnabled();
@@ -12,9 +14,7 @@ public interface Configuration {
 
     Regions getRegion();
 
-    String getSourceQueueName();
-
-    String getQueueAccountId();
+    URI getApiGatewayUrl();
 
     byte[] getEncryptionKey();
 }

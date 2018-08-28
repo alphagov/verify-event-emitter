@@ -3,36 +3,37 @@ package uk.gov.ida.eventemitter.utils;
 import com.amazonaws.regions.Regions;
 import uk.gov.ida.eventemitter.Configuration;
 
+import java.net.URI;
+
 public final class TestConfiguration implements Configuration {
 
     private final boolean enabled;
     private final String accessKeyId;
     private final String accessSecretKey;
     private final Regions region;
-    private final String queueAccountId;
-    private final String sourceQueueName;
+    private final URI apiGatewayUrl;
     private final byte[] encryptionKey;
 
     public TestConfiguration(
-        final boolean enabled,
-        final String accessKeyId,
-        final String accessSecretKey,
-        final Regions region,
-        final String queueAccountId,
-        final String sourceQueueName,
-        final byte[] encryptionKey) {
+            final boolean enabled,
+            final String accessKeyId,
+            final String accessSecretKey,
+            final Regions region,
+            final URI apiGatewayUrl,
+            final byte[] encryptionKey) {
 
         this.enabled = enabled;
         this.accessKeyId = accessKeyId;
         this.accessSecretKey = accessSecretKey;
         this.region = region;
-        this.queueAccountId = queueAccountId;
-        this.sourceQueueName = sourceQueueName;
+        this.apiGatewayUrl = apiGatewayUrl;
         this.encryptionKey = encryptionKey;
     }
 
     @Override
-    public boolean isEnabled() { return enabled; }
+    public boolean isEnabled() {
+        return enabled;
+    }
 
     @Override
     public String getAccessKeyId() {
@@ -50,12 +51,8 @@ public final class TestConfiguration implements Configuration {
     }
 
     @Override
-    public String getSourceQueueName() {
-        return sourceQueueName;
-    }
-    @Override
-    public String getQueueAccountId() {
-        return queueAccountId;
+    public URI getApiGatewayUrl() {
+        return apiGatewayUrl;
     }
 
     @Override

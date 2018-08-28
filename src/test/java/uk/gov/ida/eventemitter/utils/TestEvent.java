@@ -22,7 +22,8 @@ public final class TestEvent implements Event {
     @JsonProperty
     private Map<String, String> details;
 
-    private TestEvent() {}
+    private TestEvent() {
+    }
 
     public TestEvent(final UUID eventId,
                      final DateTime timestamp,
@@ -77,9 +78,9 @@ public final class TestEvent implements Event {
         TestEvent testEvent = (TestEvent) o;
 
         return Objects.equals(eventId, testEvent.eventId) &&
-            Objects.equals(timestamp, testEvent.timestamp) &&
-            Objects.equals(eventType, testEvent.eventType) &&
-            Objects.equals(details, testEvent.details);
+                Objects.equals(timestamp, testEvent.timestamp) &&
+                Objects.equals(eventType, testEvent.eventType) &&
+                Objects.equals(details, testEvent.details);
     }
 
     @Override

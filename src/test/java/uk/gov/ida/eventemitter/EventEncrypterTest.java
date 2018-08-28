@@ -40,4 +40,5 @@ public class EventEncrypterTest {
         JSONObject jsonObject = new JSONObject(decryptedEvent);
         assertThat(jsonObject.getLong("timestamp")).isEqualTo(event.getTimestamp().getMillis());
     }
+
 }

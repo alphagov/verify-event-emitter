@@ -11,16 +11,16 @@ import java.io.PrintStream;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
 
-public class StubSqsClientTest {
+public class StubEventSenderTest {
 
     private static final String ENCRYPTED_EVENT = "encryptedEvent";
 
-    private StubSqsClient sqsClient;
+    private StubEventSender stubEventSender;
     private Event event;
 
     @Before
     public void setUp() {
-        sqsClient = new StubSqsClient();
+        stubEventSender = new StubEventSender();
     }
 
     @Test
@@ -30,17 +30,17 @@ public class StubSqsClientTest {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {
             System.setOut(printStream);
-            sqsClient.send(event, ENCRYPTED_EVENT);
+            stubEventSender.sendAuthenticated(event, ENCRYPTED_EVENT);
             System.setOut(System.out);
 
             assertThat(outContent.toString())
-                .containsOnlyOnce(String.format(
-                "Event ID: %s, Timestamp: %s, Event Type: %s, Event String: %s\n",
-                event.getEventId().toString(),
-                event.getTimestamp(),
-                event.getEventType(),
-                ENCRYPTED_EVENT
-            ));
+                    .containsOnlyOnce(String.format(
+                            "Event ID: %s, Timestamp: %s, Event Type: %s, Event String: %s\n",
+                            event.getEventId().toString(),
+                            event.getTimestamp(),
+                            event.getEventType(),
+                            ENCRYPTED_EVENT
+                    ));
         }
     }
 
@@ -51,11 +51,11 @@ public class StubSqsClientTest {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {
             System.setOut(printStream);
-            sqsClient.send(event, "null");
+            stubEventSender.sendAuthenticated(event, "null");
             System.setOut(System.out);
 
             assertThat(outContent.toString())
-                .containsOnlyOnce("Event ID: null, Timestamp: null, Event Type: null, Event String: null\n");
+                    .containsOnlyOnce("Event ID: null, Timestamp: null, Event Type: null, Event String: null\n");
         }
     }
 }

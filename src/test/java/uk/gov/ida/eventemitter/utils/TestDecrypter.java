@@ -39,7 +39,7 @@ public class TestDecrypter<T> {
     private byte[] extractIv(final byte[] encryptedEventAndIv) {
         byte[] initialisationVector = new byte[INITIALISATION_VECTOR_SIZE];
         System.arraycopy(encryptedEventAndIv, 0, initialisationVector, 0, initialisationVector.length);
-        return  initialisationVector;
+        return initialisationVector;
     }
 
     private byte[] extractEncryptedEvent(final byte[] encryptedEventAndIv) {

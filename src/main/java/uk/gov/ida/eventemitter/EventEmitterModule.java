@@ -1,12 +1,7 @@
 package uk.gov.ida.eventemitter;
 
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.GetQueueUrlRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
@@ -30,35 +25,6 @@ public class EventEmitterModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
-    @Nullable
-    private AmazonSQS getAmazonSqs(
-            final Configuration configuration,
-            @Nullable final AWSCredentials credentials) {
-        if (configuration.isEnabled()) {
-            return AmazonSQSClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withRegion(configuration.getRegion())
-                    .build();
-        }
-        return null;
-    }
-
-    @Provides
-    @Singleton
-    @Named("SourceQueueUrl")
-    private String getQueueUrl(
-            @Nullable final AmazonSQS amazonSqs,
-            final Configuration configuration) {
-        if (configuration.isEnabled()) {
-            GetQueueUrlRequest queueUrlRequest = new GetQueueUrlRequest(configuration.getSourceQueueName())
-                    .withQueueOwnerAWSAccountId(configuration.getQueueAccountId());
-            return amazonSqs.getQueueUrl(queueUrlRequest).getQueueUrl();
-        }
-        return "";
-    }
-
-    @Provides
     @Nullable
     @Named("EncryptionKey")
     private byte[] getEncryptionKey(final Configuration configuration) {
@@ -70,14 +36,13 @@ public class EventEmitterModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private SqsClient getAmazonSqsClient(
-            @Nullable final AmazonSQS amazonSqs,
-            final @Named("SourceQueueUrl") String sourceQueueUrl,
-            final Configuration configuration) {
+    private EventSender getEventSender(
+            final Configuration configuration,
+            final @Nullable AWSCredentials credentials) {
         if (configuration.isEnabled()) {
-            return new AmazonSqsClient(amazonSqs, sourceQueueUrl);
+            return new AmazonEventSender(configuration.getApiGatewayUrl(), credentials, configuration.getRegion());
         }
-        return new StubSqsClient();
+        return new StubEventSender();
     }
 
     @Provides
@@ -94,8 +59,8 @@ public class EventEmitterModule extends AbstractModule {
     @Provides
     @Singleton
     private EventEmitter getEventEmitter(
-            final SqsClient sqsClient,
+            final EventSender eventSender,
             final Encrypter encrypter) {
-        return new EventEmitter(encrypter, sqsClient);
+        return new EventEmitter(encrypter, eventSender);
     }
 }
