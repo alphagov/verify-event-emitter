@@ -23,6 +23,11 @@ public class EventBuilder {
         return new EventBuilder();
     }
 
+    public EventBuilder withDetailsField(final EventDetailsKey key, final String value) {
+        details.put(key, value);
+        return this;
+    }
+
     public Event build() {
         return new Event(
             originatingService,

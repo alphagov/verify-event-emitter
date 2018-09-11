@@ -61,6 +61,6 @@ public class EventEmitterModule extends AbstractModule {
     private EventEmitter getEventEmitter(
             final EventSender eventSender,
             final Encrypter encrypter) {
-        return new EventEmitter(encrypter, eventSender);
+        return new EventEmitter(new EventHasher(new Sha256Util()), encrypter, eventSender);
     }
 }

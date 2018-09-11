@@ -8,9 +8,6 @@ import com.google.inject.Singleton;
 
 public class TestEventEmitterModule extends AbstractModule {
 
-    public TestEventEmitterModule() {
-    }
-
     @Override
     protected void configure() {
     }

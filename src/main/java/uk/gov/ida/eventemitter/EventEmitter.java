@@ -9,12 +9,15 @@ public class EventEmitter {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventEmitter.class);
 
+    private final EventHasher eventHasher;
     private final Encrypter encrypter;
     private final EventSender eventSender;
 
     @Inject
-    public EventEmitter(final Encrypter encrypter,
+    public EventEmitter(final EventHasher eventHasher,
+                        final Encrypter encrypter,
                         final EventSender eventSender) {
+        this.eventHasher = eventHasher;
         this.encrypter = encrypter;
         this.eventSender = eventSender;
     }
@@ -23,8 +26,9 @@ public class EventEmitter {
         if (event != null) {
             String encryptedEvent = null;
             try {
-                encryptedEvent = encrypter.encrypt(event);
-                eventSender.sendAuthenticated(event, encryptedEvent);
+                final Event hashedEvent = eventHasher.replacePersistentIdWithHashedPersistentId(event);
+                encryptedEvent = encrypter.encrypt(hashedEvent);
+                eventSender.sendAuthenticated(hashedEvent, encryptedEvent);
                 LOG.info(String.format("Sent Event Message [Event Id: %s]", event.getEventId()));
             } catch (AwsResponseException awsEx) {
                 LOG.error(String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s", event.getEventId(), awsEx.getResponse().getStatusCode(), awsEx.getMessage()));

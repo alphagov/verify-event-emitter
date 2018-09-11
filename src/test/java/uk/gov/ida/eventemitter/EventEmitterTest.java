@@ -24,6 +24,9 @@ public class EventEmitterTest {
     private Event event;
 
     @Mock
+    private EventHasher eventHasher;
+
+    @Mock
     private EventEncrypter eventEncrypter;
 
     @Mock
@@ -32,15 +35,17 @@ public class EventEmitterTest {
     @Before
     public void setUp() throws Exception {
         event = anEventMessage().build();
+        when(eventHasher.replacePersistentIdWithHashedPersistentId(event)).thenReturn(event);
         when(eventEncrypter.encrypt(event)).thenReturn(ENCRYPTED_EVENT);
 
-        eventEmitter = new EventEmitter(eventEncrypter, eventSender);
+        eventEmitter = new EventEmitter(eventHasher, eventEncrypter, eventSender);
     }
 
     @Test
     public void shouldEncryptAndSendEncryptedEventToSqs() throws Exception {
         eventEmitter.record(event);
 
+        verify(eventHasher).replacePersistentIdWithHashedPersistentId(event);
         verify(eventEncrypter).encrypt(event);
         verify(eventSender).sendAuthenticated(event, ENCRYPTED_EVENT);
     }
