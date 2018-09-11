@@ -2,14 +2,13 @@ package uk.gov.ida.eventemitter;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.ida.eventemitter.utils.TestEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
 
 public class StubEventSenderTest {
 
@@ -25,7 +24,7 @@ public class StubEventSenderTest {
 
     @Test
     public void shouldWriteEventDetailsToStandardOutput() throws IOException {
-        event = aTestEventMessage().build();
+        event = anEventMessage().build();
 
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {
@@ -46,7 +45,7 @@ public class StubEventSenderTest {
 
     @Test
     public void shouldNotThrowErrorsIfInputsAreNull() throws IOException {
-        event = new TestEvent(null, null, null, null);
+        event = new Event(null, null, null, null, null, null);
 
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {
