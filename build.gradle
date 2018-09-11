@@ -52,11 +52,9 @@ task sourceJar(type: Jar) {
 
 tasks.withType(Test) {
     testLogging {
-        events  TestLogEvent.STARTED,
-                TestLogEvent.FAILED,
+        events  TestLogEvent.FAILED,
                 TestLogEvent.PASSED,
                 TestLogEvent.SKIPPED,
-                TestLogEvent.STANDARD_OUT,
                 TestLogEvent.STANDARD_ERROR
         exceptionFormat TestExceptionFormat.FULL
         showExceptions true
