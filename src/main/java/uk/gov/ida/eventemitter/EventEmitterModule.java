@@ -2,6 +2,7 @@ package uk.gov.ida.eventemitter;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
@@ -59,8 +60,9 @@ public class EventEmitterModule extends AbstractModule {
     @Provides
     @Singleton
     private EventEmitter getEventEmitter(
+            final ObjectMapper objectMapper,
             final EventSender eventSender,
             final Encrypter encrypter) {
-        return new EventEmitter(new EventHasher(new Sha256Util()), encrypter, eventSender);
+        return new EventEmitter(objectMapper, new EventHasher(new Sha256Util()), encrypter, eventSender);
     }
 }

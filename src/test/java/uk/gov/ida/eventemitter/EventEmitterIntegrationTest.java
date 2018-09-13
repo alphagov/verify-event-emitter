@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.amazonaws.regions.Regions;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Injector;
 import httpstub.HttpStubRule;
@@ -44,6 +45,7 @@ public class EventEmitterIntegrationTest {
     private static TestAppender testAppender = new TestAppender();
     private static Injector injector = null;
     private static EventEmitter eventEmitter;
+    private static ObjectMapper objectMapper;
 
     @ClassRule
     public static HttpStubRule apiGatewayStub = new HttpStubRule();
@@ -58,7 +60,7 @@ public class EventEmitterIntegrationTest {
                 URI.create(apiGatewayStub.baseUri().build().toString() + AUDIT_EVENTS_API_RESOURCE));
 
         eventEmitter = injector.getInstance(EventEmitter.class);
-
+        objectMapper = injector.getInstance(ObjectMapper.class);
     }
 
     @Before
@@ -100,20 +102,22 @@ public class EventEmitterIntegrationTest {
         assertThat(actualEvent.getOriginatingService()).isEqualTo(expectedEvent.getOriginatingService());
         assertThat(actualEvent.getSessionId()).isEqualTo(expectedEvent.getSessionId());
         assertThatDetailsAreSameExceptPidIsHashed(expectedDetails, actualDetails);
-        assertThat(TestAppender.events.get(0).toString()).contains(
+        assertThat(TestAppender.events.get(0).toString()).contains(objectMapper.writeValueAsString(expectedEvent));
+        assertThat(TestAppender.events.get(1).toString()).contains(
                 String.format("Sent Event Message [Event Id: %s]",
                         expectedEvent.getEventId()));
     }
 
     @Test
-    public void shouldFailSilentlyWithIncorrectResource() {
+    public void shouldFailSilentlyWithIncorrectResource() throws JsonProcessingException {
 
         apiGatewayStub.register(AUDIT_EVENTS_API_RESOURCE_INVALID, HttpResponse.HTTP_404.getStatusCode());
 
         eventEmitter.record(EVENT);
 
+        assertThat(TestAppender.events.get(0).toString()).contains(objectMapper.writeValueAsString(EVENT));
         assertThat(
-                TestAppender.events.get(0).toString()).contains(
+                TestAppender.events.get(1).toString()).contains(
                 String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s",
                         EVENT.getEventId(),
                         HttpResponse.HTTP_404.getStatusCode(),
@@ -122,14 +126,15 @@ public class EventEmitterIntegrationTest {
     }
 
     @Test
-    public void shouldFailSilentlyWithUnauthorized() {
+    public void shouldFailSilentlyWithUnauthorized() throws JsonProcessingException {
 
         apiGatewayStub.register(AUDIT_EVENTS_API_RESOURCE, HttpResponse.HTTP_403.getStatusCode());
 
         eventEmitter.record(EVENT);
 
+        assertThat(TestAppender.events.get(0).toString()).contains(objectMapper.writeValueAsString(EVENT));
         assertThat(
-                TestAppender.events.get(0).toString()).contains(
+                TestAppender.events.get(1).toString()).contains(
                 String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s",
                         EVENT.getEventId(),
                         HttpResponse.HTTP_403.getStatusCode(),
@@ -138,14 +143,15 @@ public class EventEmitterIntegrationTest {
     }
 
     @Test
-    public void shouldFailSilentlyWithTimeout() {
+    public void shouldFailSilentlyWithTimeout() throws JsonProcessingException {
 
         apiGatewayStub.register(AUDIT_EVENTS_API_RESOURCE, HttpResponse.HTTP_504.getStatusCode());
 
         eventEmitter.record(EVENT);
 
+        assertThat(TestAppender.events.get(0).toString()).contains(objectMapper.writeValueAsString(EVENT));
         assertThat(
-                TestAppender.events.get(0).toString()).contains(
+                TestAppender.events.get(1).toString()).contains(
                 String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s",
                         EVENT.getEventId(),
                         HttpResponse.HTTP_504.getStatusCode(),

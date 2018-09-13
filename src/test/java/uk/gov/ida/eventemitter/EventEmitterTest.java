@@ -1,5 +1,6 @@
 package uk.gov.ida.eventemitter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,9 @@ public class EventEmitterTest {
     private Event event;
 
     @Mock
+    private ObjectMapper objectMapper;
+
+    @Mock
     private EventHasher eventHasher;
 
     @Mock
@@ -38,13 +42,14 @@ public class EventEmitterTest {
         when(eventHasher.replacePersistentIdWithHashedPersistentId(event)).thenReturn(event);
         when(eventEncrypter.encrypt(event)).thenReturn(ENCRYPTED_EVENT);
 
-        eventEmitter = new EventEmitter(eventHasher, eventEncrypter, eventSender);
+        eventEmitter = new EventEmitter(objectMapper, eventHasher, eventEncrypter, eventSender);
     }
 
     @Test
     public void shouldEncryptAndSendEncryptedEventToSqs() throws Exception {
         eventEmitter.record(event);
 
+        verify(objectMapper).writeValueAsString(event);
         verify(eventHasher).replacePersistentIdWithHashedPersistentId(event);
         verify(eventEncrypter).encrypt(event);
         verify(eventSender).sendAuthenticated(event, ENCRYPTED_EVENT);
