@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.createTestResponseHeadersMap;
-import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventEmitterAmazonEventSenderTest {
@@ -62,7 +62,7 @@ public class EventEmitterAmazonEventSenderTest {
 
         try {
             apiGatewayStub.register(expectedRequest, expectedResponse);
-            amazonEventSender.sendAuthenticated(aTestEventMessage().build(), "encryptedEvent");
+            amazonEventSender.sendAuthenticated(anEventMessage().build(), "encryptedEvent");
             Fail.fail("Should return Forbidden (403)");
         } catch (AwsResponseException e) {
             assertThat(e.getResponse().getStatusCode()).isEqualTo(HttpResponse.HTTP_403.getStatusCode());
@@ -88,7 +88,7 @@ public class EventEmitterAmazonEventSenderTest {
             The expected headers are tested separated using assertions in the try block below.
          */
         apiGatewayStub.register(expectedRequest, expectedResponse);
-        amazonEventSender.sendAuthenticated(aTestEventMessage().build(), "encryptedEvent");
+        amazonEventSender.sendAuthenticated(anEventMessage().build(), "encryptedEvent");
 
         /*
             Check that all the headers required for AWS Authentication and AWS4 Signing are present.
@@ -113,7 +113,7 @@ public class EventEmitterAmazonEventSenderTest {
                         new BasicAWSCredentials(DUMMY_AWS_ACCESS_KEY, DUMMY_AWS_SECRET_ACCESS_KEY),
                         Regions.EU_WEST_2);
 
-        amazonEventSender.sendAuthenticated(aTestEventMessage().build(), "");
+        amazonEventSender.sendAuthenticated(anEventMessage().build(), "");
 
     }
 

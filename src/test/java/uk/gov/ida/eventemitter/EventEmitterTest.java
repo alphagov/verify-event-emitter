@@ -1,11 +1,11 @@
 package uk.gov.ida.eventemitter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.ida.eventemitter.utils.TestEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.io.PrintStream;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventEmitterTest {
@@ -22,7 +22,13 @@ public class EventEmitterTest {
     private static final String ENCRYPTED_EVENT = "encrypted event";
 
     private EventEmitter eventEmitter;
-    private TestEvent event;
+    private Event event;
+
+    @Mock
+    private ObjectMapper objectMapper;
+
+    @Mock
+    private EventHasher eventHasher;
 
     @Mock
     private EventEncrypter eventEncrypter;
@@ -32,16 +38,19 @@ public class EventEmitterTest {
 
     @Before
     public void setUp() throws Exception {
-        event = aTestEventMessage().build();
+        event = anEventMessage().build();
+        when(eventHasher.replacePersistentIdWithHashedPersistentId(event)).thenReturn(event);
         when(eventEncrypter.encrypt(event)).thenReturn(ENCRYPTED_EVENT);
 
-        eventEmitter = new EventEmitter(eventEncrypter, eventSender);
+        eventEmitter = new EventEmitter(objectMapper, eventHasher, eventEncrypter, eventSender);
     }
 
     @Test
     public void shouldEncryptAndSendEncryptedEventToSqs() throws Exception {
         eventEmitter.record(event);
 
+        verify(objectMapper).writeValueAsString(event);
+        verify(eventHasher).replacePersistentIdWithHashedPersistentId(event);
         verify(eventEncrypter).encrypt(event);
         verify(eventSender).sendAuthenticated(event, ENCRYPTED_EVENT);
     }

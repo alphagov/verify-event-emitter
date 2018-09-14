@@ -28,7 +28,6 @@ dependencies {
                 'com.google.code.findbugs:jsr305:1.3.9',
                 'com.amazonaws:aws-java-sdk-s3:1.11.277',
                 'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.8.10',
-                'uk.gov.ida:rest-utils:2.0.0-337',
                 'uk.gov.ida:dropwizard-logstash:1.3.5-70'
 
     testCompile 'junit:junit:4.12',
@@ -52,11 +51,9 @@ task sourceJar(type: Jar) {
 
 tasks.withType(Test) {
     testLogging {
-        events  TestLogEvent.STARTED,
-                TestLogEvent.FAILED,
+        events  TestLogEvent.FAILED,
                 TestLogEvent.PASSED,
                 TestLogEvent.SKIPPED,
-                TestLogEvent.STANDARD_OUT,
                 TestLogEvent.STANDARD_ERROR
         exceptionFormat TestExceptionFormat.FULL
         showExceptions true

@@ -6,23 +6,22 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.ida.eventemitter.utils.TestDecrypter;
-import uk.gov.ida.eventemitter.utils.TestEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.eventemitter.utils.TestEventBuilder.aTestEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
 
 public class EventEncrypterTest {
 
     private static final byte[] KEY = "aesEncryptionKey".getBytes();
 
-    private TestEvent event;
+    private Event event;
     private EventEncrypter eventEncrypter;
-    private TestDecrypter<TestEvent> decrypter;
+    private TestDecrypter<Event> decrypter;
     private ObjectMapper mapper;
 
     @Before
     public void setUp() {
-        event = aTestEventMessage().build();
+        event = anEventMessage().build();
 
         mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
@@ -35,7 +34,7 @@ public class EventEncrypterTest {
     public void shouldEncryptEvent() throws Exception {
         final String encryptedEvent = eventEncrypter.encrypt(event);
         String decryptedEvent = decrypter.decrypt(encryptedEvent);
-        assertThat(mapper.readValue(decryptedEvent, TestEvent.class)).isEqualTo(event);
+        assertThat(mapper.readValue(decryptedEvent, Event.class)).isEqualTo(event);
 
         JSONObject jsonObject = new JSONObject(decryptedEvent);
         assertThat(jsonObject.getLong("timestamp")).isEqualTo(event.getTimestamp().getMillis());
