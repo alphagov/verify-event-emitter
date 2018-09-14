@@ -8,7 +8,7 @@ import org.junit.Test;
 import uk.gov.ida.eventemitter.utils.TestDecrypter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
 
 public class EventEncrypterTest {
 
@@ -34,7 +34,7 @@ public class EventEncrypterTest {
     public void shouldEncryptEvent() throws Exception {
         final String encryptedEvent = eventEncrypter.encrypt(event);
         String decryptedEvent = decrypter.decrypt(encryptedEvent);
-        assertThat(mapper.readValue(decryptedEvent, Event.class)).isEqualTo(event);
+        assertThat(mapper.readValue(decryptedEvent, EventMessage.class)).isEqualTo(event);
 
         JSONObject jsonObject = new JSONObject(decryptedEvent);
         assertThat(jsonObject.getLong("timestamp")).isEqualTo(event.getTimestamp().getMillis());

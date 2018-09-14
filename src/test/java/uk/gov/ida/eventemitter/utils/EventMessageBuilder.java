@@ -1,35 +1,34 @@
 package uk.gov.ida.eventemitter.utils;
 
-import uk.gov.ida.eventemitter.Event;
 import uk.gov.ida.eventemitter.EventDetailsKey;
+import uk.gov.ida.eventemitter.EventMessage;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 import java.util.UUID;
 
-public class EventBuilder {
+public class EventMessageBuilder {
 
     private String eventType = "error";
     private String originatingService = "originating service";
     private String sessionId = "session id";
-    private Map<EventDetailsKey, String> details = new HashMap<>();
+    private EnumMap<EventDetailsKey, String> details = new EnumMap<>(EventDetailsKey.class);
 
     {
         details.put(EventDetailsKey.message, "Session error");
         details.put(EventDetailsKey.error_id, UUID.randomUUID().toString());
     }
 
-    public static EventBuilder anEventMessage() {
-        return new EventBuilder();
+    public static EventMessageBuilder anEventMessage() {
+        return new EventMessageBuilder();
     }
 
-    public EventBuilder withDetailsField(final EventDetailsKey key, final String value) {
+    public EventMessageBuilder withDetailsField(final EventDetailsKey key, final String value) {
         details.put(key, value);
         return this;
     }
 
-    public Event build() {
-        return new Event(
+    public EventMessage build() {
+        return new EventMessage(
             originatingService,
             sessionId,
             eventType,
