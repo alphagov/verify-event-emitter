@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.createTestResponseHeadersMap;
-import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventEmitterAmazonEventSenderTest {
