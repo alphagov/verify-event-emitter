@@ -39,7 +39,7 @@ public class EventHasher {
                     }
                 }
 
-                return new Event(
+                return new EventMessage(
                     event.getEventId(),
                     event.getTimestamp(),
                     event.getEventType(),
