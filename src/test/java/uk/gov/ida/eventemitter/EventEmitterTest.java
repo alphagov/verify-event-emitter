@@ -14,7 +14,7 @@ import java.io.PrintStream;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.EventMessageBuilder.anEventMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventEmitterTest {
