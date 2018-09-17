@@ -31,7 +31,7 @@ import static uk.gov.ida.eventemitter.EventEmitterTestHelper.ACCESS_SECRET_KEY;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE_INVALID;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.KEY;
-import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.EventMessageBuilder.anEventMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventEmitterIntegrationTest {

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.EventMessageBuilder.anEventMessage;
 
 
 public class EventEmitterWithDisabledConfigTest {

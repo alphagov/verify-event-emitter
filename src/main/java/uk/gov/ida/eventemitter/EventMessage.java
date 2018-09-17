@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.EnumMap;
 import java.util.Objects;
 import java.util.UUID;
 
+@Immutable
 public final class EventMessage implements Event {
 
     @JsonProperty

@@ -8,7 +8,7 @@ import org.junit.Test;
 import uk.gov.ida.eventemitter.utils.TestDecrypter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.EventMessageBuilder.anEventMessage;
 
 public class EventEncrypterTest {
 
