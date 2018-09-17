@@ -3,7 +3,7 @@ package uk.gov.ida.eventemitter;
 import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
 
 public class StubEncrypterTest {
 

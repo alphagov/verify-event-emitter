@@ -31,7 +31,7 @@ import static uk.gov.ida.eventemitter.EventEmitterTestHelper.ACCESS_SECRET_KEY;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.AUDIT_EVENTS_API_RESOURCE_INVALID;
 import static uk.gov.ida.eventemitter.EventEmitterTestHelper.KEY;
-import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventEmitterIntegrationTest {
@@ -91,8 +91,8 @@ public class EventEmitterIntegrationTest {
         eventEmitter.record(expectedEvent);
 
         final String message = new String(apiGatewayStub.getLastRequest().getEntityBytes());
-        final TestDecrypter<Event> decrypter = new TestDecrypter(KEY, injector.getInstance(ObjectMapper.class));
-        final Event actualEvent = decrypter.decrypt(message, Event.class);
+        final TestDecrypter<EventMessage> decrypter = new TestDecrypter(KEY, injector.getInstance(ObjectMapper.class));
+        final Event actualEvent = decrypter.decrypt(message, EventMessage.class);
         final Map<EventDetailsKey, String> expectedDetails = actualEvent.getDetails();
         final Map<EventDetailsKey, String> actualDetails = actualEvent.getDetails();
 

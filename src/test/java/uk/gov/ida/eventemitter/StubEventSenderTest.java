@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static uk.gov.ida.eventemitter.utils.EventBuilder.anEventMessage;
+import static uk.gov.ida.eventemitter.utils.EventMessageBuilder.anEventMessage;
 
 public class StubEventSenderTest {
 
@@ -45,7 +45,7 @@ public class StubEventSenderTest {
 
     @Test
     public void shouldNotThrowErrorsIfInputsAreNull() throws IOException {
-        event = new Event(null, null, null, null, null, null);
+        event = new EventMessage(null, null, null, null, null, null);
 
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream();
              PrintStream printStream = new PrintStream(outContent)) {

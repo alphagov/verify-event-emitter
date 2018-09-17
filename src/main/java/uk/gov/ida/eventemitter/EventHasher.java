@@ -2,8 +2,7 @@ package uk.gov.ida.eventemitter;
 
 import com.google.inject.Inject;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 
 public class EventHasher {
 
@@ -17,14 +16,14 @@ public class EventHasher {
     }
 
     public Event replacePersistentIdWithHashedPersistentId(final Event event) {
-        final Map<EventDetailsKey, String> details = event.getDetails();
+        final EnumMap<EventDetailsKey, String> details = event.getDetails();
 
         if (details != null) {
             final String pid = details.get(EventDetailsKey.pid);
 
             if (pid != null) {
                 final String idpEntityId = details.get(EventDetailsKey.idp_entity_id);
-                final Map<EventDetailsKey, String> newDetails = new HashMap<>();
+                final EnumMap<EventDetailsKey, String> newDetails = new EnumMap<>(EventDetailsKey.class);
 
                 if (idpEntityId == null) {
                     newDetails.put(EventDetailsKey.pid, PID_REMOVED);
@@ -39,7 +38,7 @@ public class EventHasher {
                     }
                 }
 
-                return new Event(
+                return new EventMessage(
                     event.getEventId(),
                     event.getTimestamp(),
                     event.getEventType(),
