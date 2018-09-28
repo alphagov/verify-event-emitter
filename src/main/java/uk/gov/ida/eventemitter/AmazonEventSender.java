@@ -38,7 +38,7 @@ public class AmazonEventSender implements EventSender {
         Request<Void> request = createRequest(encryptedEvent);
         request = signRequest(request);
 
-        Response<Void> response = new AmazonHttpClient(new ClientConfiguration().withMaxErrorRetry(0))
+        new AmazonHttpClient(new ClientConfiguration())
                 .requestExecutionBuilder()
                 .executionContext(new ExecutionContext(true))
                 .request(request)

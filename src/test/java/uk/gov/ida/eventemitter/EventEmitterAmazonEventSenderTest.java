@@ -104,6 +104,27 @@ public class EventEmitterAmazonEventSenderTest {
 
     }
 
+    @Test
+    public void shouldRetryRequests() throws UnsupportedEncodingException {
+        final RegisteredResponse errorResponse = new RegisteredResponse(
+                HttpResponse.HTTP_504.getStatusCode(),
+                "application/json",
+                "error",
+                createTestResponseHeadersMap()
+        );
+        final EventSender amazonEventSender =
+                new AmazonEventSender(URI.create(apiGatewayStub.baseUri().build().toString() + AUDIT_EVENTS_API_RESOURCE),
+                        new BasicAWSCredentials(DUMMY_AWS_ACCESS_KEY, DUMMY_AWS_SECRET_ACCESS_KEY),
+                        Regions.EU_WEST_2);
+
+        apiGatewayStub.register(expectedRequest, errorResponse);
+        try {
+            amazonEventSender.sendAuthenticated(anEventMessage().build(), "encryptedEvent");
+        } catch (Exception e) {
+            assertThat(apiGatewayStub.getCountOfRequests()).isGreaterThan(1);
+        }
+    }
+
     @Test(expected = AwsResponseException.class)
     public void shouldThrowAwsResponseExceptioWhenNotFound() throws UnsupportedEncodingException {
 
