@@ -22,5 +22,7 @@ public enum EventDetailsKey {
     principal_ip_address_as_seen_by_idp,
     principal_ip_address_as_seen_by_hub,
     request_id,
-    country_code
+    country_code,
+    analytics_session_id,
+    journey_type
 }
