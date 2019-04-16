@@ -36,10 +36,9 @@ public class EventEmitter {
                 eventSender.sendAuthenticated(hashedEvent, encryptedEvent);
                 LOG.info(String.format("Sent Event Message [Event Id: %s]", event.getEventId()));
             } catch (AwsResponseException awsEx) {
-                LOG.error(String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s", event.getEventId(), awsEx.getResponse().getStatusCode(), awsEx.getMessage()));
+                LOG.error(String.format("Failed to send a message [Event Id: %s] to the api gateway. Status: %s Error Message: %s Event Detail: %s", event.getEventId(), awsEx.getResponse().getStatusCode(), awsEx.getMessage(), encryptedEvent));
             } catch (Exception ex) {
-                LOG.error(String.format("Failed to send a message [Event Id: %s] to the api gateway. Error Message: %s", event.getEventId(), ex.getMessage()));
-                LOG.error(String.format("Event Message: %s", event));
+                LOG.error(String.format("Failed to send a message [Event Id: %s] to the api gateway. Error Message: %s Event Detail: %s", event.getEventId(), ex.getMessage(), encryptedEvent));
             }
         } else {
             LOG.error("Unable to send a message due to event containing null value.");
