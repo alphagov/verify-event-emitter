@@ -13,6 +13,7 @@ public final class TestConfiguration implements Configuration {
     private final Regions region;
     private final URI apiGatewayUrl;
     private final byte[] encryptionKey;
+    private final String sourceQueueName;
 
     public TestConfiguration(
             final boolean enabled,
@@ -20,7 +21,8 @@ public final class TestConfiguration implements Configuration {
             final String accessSecretKey,
             final Regions region,
             final URI apiGatewayUrl,
-            final byte[] encryptionKey) {
+            final byte[] encryptionKey,
+            final String sourceQueueName) {
 
         this.enabled = enabled;
         this.accessKeyId = accessKeyId;
@@ -28,6 +30,7 @@ public final class TestConfiguration implements Configuration {
         this.region = region;
         this.apiGatewayUrl = apiGatewayUrl;
         this.encryptionKey = encryptionKey;
+        this.sourceQueueName = sourceQueueName;
     }
 
     @Override
@@ -58,6 +61,11 @@ public final class TestConfiguration implements Configuration {
     @Override
     public byte[] getEncryptionKey() {
         return encryptionKey;
+    }
+
+    @Override
+    public String getSourceQueueName() {
+        return sourceQueueName;
     }
 
 }

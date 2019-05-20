@@ -17,4 +17,6 @@ public interface Configuration {
     URI getApiGatewayUrl();
 
     byte[] getEncryptionKey();
+
+    String getSourceQueueName();
 }
