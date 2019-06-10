@@ -1,4 +1,4 @@
-package uk.gov.ida.eventemitter;
+package uk.gov.ida.eventemitter.sqs;
 
 import com.amazonaws.regions.Regions;
 import com.google.inject.AbstractModule;
@@ -7,27 +7,28 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.util.Modules;
+import uk.gov.ida.eventemitter.Configuration;
+import uk.gov.ida.eventemitter.EventEmitterModule;
 import uk.gov.ida.eventemitter.utils.TestConfiguration;
 import uk.gov.ida.eventemitter.utils.TestEventEmitterModule;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
-public class EventEmitterTestHelper {
+public class EventEmitterSQSTestHelper {
 
-    protected static final String ACCESS_KEY_ID = "accessKeyId";
-    protected static final String ACCESS_SECRET_KEY = "accessSecretKey";
+    protected static final String ACCESS_KEY_ID = System.getenv("AWS_DEV_ACCESS_KEY_ID");
+    protected static final String ACCESS_SECRET_KEY = System.getenv("AWS_DEV_ACCESS_SECRET_KEY");
     protected static final byte[] KEY = "aesEncryptionKey".getBytes();
-    protected static final String AUDIT_EVENTS_API_RESOURCE = "/v1/auditevents/";
-    protected static final String AUDIT_EVENTS_API_RESOURCE_INVALID = "/1234";
+    protected static final String SOURCE_QUEUE_NAME = "default-doc-checking-event-recorder-queue";
 
     public static Injector createTestConfiguration(
             Boolean isEnabled,
             String accessKey,
             String secretAccessKey,
             Regions region,
-            URI uri
+            URI uri,
+            String sourceQueueName,
+            String queueAccountId
     ) {
         return Guice.createInjector(new AbstractModule() {
             @Override
@@ -44,20 +45,9 @@ public class EventEmitterTestHelper {
                         region,
                         uri,
                         KEY,
-                        null
+                        sourceQueueName
                 );
             }
         }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
-
-    }
-
-    public static Map<String, String> createTestResponseHeadersMap() {
-        final Map<String, String> responseHeaders = new HashMap<String, String>();
-        responseHeaders.put("Content-Length", "1");
-        responseHeaders.put("Connection", "2");
-        responseHeaders.put("x-amzn-RequestId", "3");
-        responseHeaders.put("x-amzn-ErrorType", "4");
-        responseHeaders.put("x-amz-apigw-id", "5");
-        return responseHeaders;
     }
 }

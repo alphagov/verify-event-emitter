@@ -2,15 +2,5 @@ language: java
 env:
   - VERIFY_USE_PUBLIC_BINARIES=true
 jdk:
-  - oraclejdk8
-  - oraclejdk9
   - openjdk8
-matrix:
-  allow_failures:
-  - jdk: oraclejdk9
-services:
-  - docker
-before_script:
-  - docker build -f PublicDockerfile -t verify-event-emitter .
-script:
-  - docker run --env VERIFY_USE_PUBLIC_BINARIES verify-event-emitter /bin/sh -c "./gradlew clean build"
+  - openjdk11
