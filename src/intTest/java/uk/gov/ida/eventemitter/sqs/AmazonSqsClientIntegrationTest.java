@@ -1,5 +1,6 @@
 package uk.gov.ida.eventemitter.sqs;
 
+import cloud.localstack.LocalstackTestRunner;
 import cloud.localstack.TestUtils;
 import cloud.localstack.docker.LocalstackDockerTestRunner;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
@@ -18,8 +19,7 @@ import org.junit.runner.RunWith;
 import uk.gov.ida.eventemitter.AuditEvent;
 import uk.gov.ida.eventemitter.utils.TestEventBuilder;
 
-@RunWith(LocalstackDockerTestRunner.class)
-@LocalstackDockerProperties(services = { "sqs" })
+@RunWith(LocalstackTestRunner.class)
 public class AmazonSqsClientIntegrationTest {
 
     @Rule
