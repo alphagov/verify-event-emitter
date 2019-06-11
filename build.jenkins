@@ -6,7 +6,7 @@ pipeline {
       agent {
         dockerfile { additionalBuildArgs "--pull" }
       }
-      steps { sh './gradlew build' }
+      steps { sh './gradlew clean build integrationTest' }
     }
     stage('Publish') {
       agent {
