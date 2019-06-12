@@ -3,6 +3,7 @@ package uk.gov.ida.eventemitter.sqs;
 import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Injector;
+import com.google.inject.Stage;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,6 +31,7 @@ public class EventEmitterSQSIntegrationTest {
         org.junit.Assume.assumeTrue(ACCESS_KEY_ID != null && ACCESS_SECRET_KEY != null);
 
         injector = EventEmitterSQSTestHelper.createTestConfiguration(
+                Stage.PRODUCTION,
                 CONFIGURATION_ENABLED,
                 ACCESS_KEY_ID,
                 ACCESS_SECRET_KEY,
