@@ -6,6 +6,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.Stage;
 import com.google.inject.util.Modules;
 import uk.gov.ida.eventemitter.Configuration;
 import uk.gov.ida.eventemitter.EventEmitterModule;
@@ -22,6 +23,7 @@ public class EventEmitterSQSTestHelper {
     protected static final String SOURCE_QUEUE_NAME = "default-doc-checking-event-recorder-queue";
 
     public static Injector createTestConfiguration(
+            Stage stage,
             Boolean isEnabled,
             String accessKey,
             String secretAccessKey,
@@ -30,7 +32,7 @@ public class EventEmitterSQSTestHelper {
             String sourceQueueName,
             String queueAccountId
     ) {
-        return Guice.createInjector(new AbstractModule() {
+        return Guice.createInjector(stage, new AbstractModule() {
             @Override
             protected void configure() {
             }
@@ -48,6 +50,6 @@ public class EventEmitterSQSTestHelper {
                         sourceQueueName
                 );
             }
-        }, Modules.override(new EventEmitterModule()).with(new TestEventEmitterModule()));
+        }, Modules.override(new EventEmitterSQSModule()).with(new TestEventEmitterModule()));
     }
 }
