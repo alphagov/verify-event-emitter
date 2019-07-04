@@ -1,10 +1,12 @@
-FROM govukverify/java8:latest
+FROM openjdk:11-jdk
 
 RUN apt-get update \
-    && apt-get install -y python-pip build-essential maven sudo \
+    && apt-get install -y python-pip build-essential maven sudo unzip jq curl wget git make\
     && curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - \
     && apt-get install -y nodejs \
-    && pip install virtualenv
+    && pip install virtualenv \
+    && apt-get clean
+
 
 WORKDIR /home/user
 RUN groupadd -g 116 team;\

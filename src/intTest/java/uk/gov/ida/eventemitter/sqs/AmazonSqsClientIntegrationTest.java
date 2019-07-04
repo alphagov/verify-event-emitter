@@ -2,8 +2,6 @@ package uk.gov.ida.eventemitter.sqs;
 
 import cloud.localstack.LocalstackTestRunner;
 import cloud.localstack.TestUtils;
-import cloud.localstack.docker.LocalstackDockerTestRunner;
-import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.Message;
