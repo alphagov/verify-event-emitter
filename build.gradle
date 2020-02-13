@@ -97,15 +97,6 @@ tasks.withType(Test) {
 }
 
 publishing {
-    repositories {
-        maven {
-            credentials {
-                username "${System.env.ARTIUSER}"
-                password "${System.env.ARTIPASSWORD}"
-            }
-            url "https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/libs-release-local"
-        }
-    }
     publications {
         mavenJava(MavenPublication) {
             from components.java
