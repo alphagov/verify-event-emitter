@@ -24,5 +24,6 @@ public enum EventDetailsKey {
     request_id,
     country_code,
     analytics_session_id,
-    journey_type
+    journey_type,
+    ab_test_variant
 }
