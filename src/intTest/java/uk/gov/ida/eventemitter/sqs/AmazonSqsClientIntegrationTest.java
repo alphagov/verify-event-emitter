@@ -61,8 +61,8 @@ public class AmazonSqsClientIntegrationTest {
     public void shouldThrowErrorWhenSendingMessageToSqsWhereQueueDoesNotExist() {
         expectedException.expect(AmazonSQSException.class);
         expectedException.expectMessage("Invalid request: MissingQueryParamRejection(QueueName)");
-
-        sqsClient = new AmazonSqsClient(sqs, queueUrl, objectMapper);
+        System.out.println(queueUrl); // TODO - delete this line
+        sqsClient = new AmazonSqsClient(sqs, queueUrl + "badQueue", objectMapper);
 
         sqsClient.send(event);
     }
