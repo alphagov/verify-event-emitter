@@ -7,6 +7,11 @@ jdk:
 services:
   - docker
 before_script:
-  - docker build -f PublicDockerfile -t verify-event-emitter .
+  - echo "before script" #docker build -f PublicDockerfile -t verify-event-emitter .
 script:
-  - docker run --env VERIFY_USE_PUBLIC_BINARIES verify-event-emitter /bin/sh -c "./gradlew clean build integrationTest"
+  - ./gradlew clean build integrationTest
+addons:
+  apt:
+    packages:
+      - python3
+      - python3-pip
