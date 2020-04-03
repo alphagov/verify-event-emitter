@@ -60,12 +60,13 @@ public class AmazonSqsClientIntegrationTest {
     @Test
     public void shouldThrowErrorWhenSendingMessageToSqsWhereQueueDoesNotExist() {
         expectedException.expect(AmazonSQSException.class);
-        expectedException.expectMessage("Invalid request: MissingQueryParamRejection(QueueName), " +
-            "MissingQueryParamRejection(QueueUrl); see the SQS docs. (Service: AmazonSQS; Status Code: 400; Error " +
-            "Code: Invalid request: MissingQueryParamRejection(QueueName), MissingQueryParamRejection(QueueUrl); " +
-            "Request ID: 00000000-0000-0000-0000-000000000000)");
+        expectedException.expectMessage("AWS.SimpleQueueService.NonExistentQueue; see the SQS docs. " +
+                "(Service: AmazonSQS; " +
+                "Status Code: 400; " +
+                "Error Code: AWS.SimpleQueueService.NonExistentQueue; " +
+                "Request ID: 00000000-0000-0000-0000-000000000000)");
 
-        sqsClient = new AmazonSqsClient(sqs, "nonExistentQueueUrl", objectMapper);
+        sqsClient = new AmazonSqsClient(sqs, queueUrl + "notHere", objectMapper);
 
         sqsClient.send(event);
     }
