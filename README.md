@@ -23,6 +23,10 @@ Use an `EventEmitter` to send events to the API Gateway API.  Use an `EventEmitt
 
 `./gradlew clean build`
 
+### Pre-Commit Script
+
+In order to run the integration tests you will need to install `python`, `pip` and `docker` on your dev machine.
+
 ## Licence
 
 [MIT Licence](LICENCE)
