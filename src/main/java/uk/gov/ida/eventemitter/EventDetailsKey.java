@@ -12,7 +12,9 @@ public enum EventDetailsKey {
     hub_event_type,
     pid,
     minimum_level_of_assurance,
-    required_level_of_assurance,
+    maximum_level_of_assurance,
+    required_level_of_assurance, // deprecated
+    preferred_level_of_assurance,
     provided_level_of_assurance,
     downstream_uri,
     message_id,
