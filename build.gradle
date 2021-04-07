@@ -9,13 +9,20 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
 
-def buildVersion = "0.0.1-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
+def buildVersion = "2.0.0-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 group = "uk.gov.ida"
 version = "$buildVersion"
 archivesBaseName = "verify-event-emitter"
 
 repositories {
-    maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
+    if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
+        logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/allowed-repos for production builds.\n\n')
+        maven { url 'https://dl.bintray.com/alphagov/maven-test' }
+        jcenter()
+    }
+    else {
+        maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
+    }
 }
 
 java {
@@ -125,7 +132,7 @@ publishing {
             pom {
                 name = 'Verify Event Emitter'
                 packaging = 'jar'
-                description = 'Library providing a Java Service to log Audit Events to a datastor'
+                description = 'Library providing a Java Service to log Audit Events to a datastore'
                 url = 'https://github.com/alphagov/verify-event-emitter'
                 artifactId = 'verify-event-emitter'
 
