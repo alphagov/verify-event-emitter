@@ -1,7 +1,8 @@
 package uk.gov.ida.eventemitter.sqs;
 
 import cloud.localstack.LocalstackTestRunner;
-import cloud.localstack.TestUtils;
+import cloud.localstack.awssdkv1.TestUtils;
+import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.Message;
@@ -18,6 +19,7 @@ import uk.gov.ida.eventemitter.AuditEvent;
 import uk.gov.ida.eventemitter.utils.TestEventBuilder;
 
 @RunWith(LocalstackTestRunner.class)
+@LocalstackDockerProperties(services = { "sqs" })
 public class AmazonSqsClientIntegrationTest {
 
     @Rule
@@ -60,11 +62,11 @@ public class AmazonSqsClientIntegrationTest {
     @Test
     public void shouldThrowErrorWhenSendingMessageToSqsWhereQueueDoesNotExist() {
         expectedException.expect(AmazonSQSException.class);
-        expectedException.expectMessage("AWS.SimpleQueueService.NonExistentQueue; see the SQS docs. " +
+        expectedException.expectMessage("The specified queue does not exist for this wsdl version. " +
                 "(Service: AmazonSQS; " +
-                "Status Code: 400; " +
+                "Status Code: 404; " +
                 "Error Code: AWS.SimpleQueueService.NonExistentQueue; " +
-                "Request ID: 00000000-0000-0000-0000-000000000000)");
+                "Request ID: ");
 
         sqsClient = new AmazonSqsClient(sqs, queueUrl + "notHere", objectMapper);
 
