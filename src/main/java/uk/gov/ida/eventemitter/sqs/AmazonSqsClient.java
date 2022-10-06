@@ -5,6 +5,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class AmazonSqsClient implements SqsClient {
                            final ObjectMapper objectMapper) {
         this.sqs = sqs;
         this.queueUrl = queueUrl;
-        this.objectMapper = objectMapper;
+        this.objectMapper = objectMapper.registerModule(new JodaModule());
     }
 
     @Override

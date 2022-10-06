@@ -5,6 +5,7 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,7 @@ public class AmazonSqsClientTest {
     @Before
     public void setUp() {
         sqsClient = new AmazonSqsClient(sqs, QUEUE_URL, new ObjectMapper());
-        objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper().registerModule(new JodaModule());
     }
 
     @Test
