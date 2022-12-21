@@ -56,7 +56,7 @@ dependencies {
                     sourceSets.test.output,
                     configurations.compile,
                     configurations.testCompile,
-                    'cloud.localstack:localstack-utils:0.2.11'
+                    'cloud.localstack:localstack-utils:0.2.22'
 }
 
 task integrationTest(type: Test) {
